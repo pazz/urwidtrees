@@ -4,15 +4,29 @@
 import urwid
 from urwid import WidgetWrap, ListBox
 from urwid import signals
-import logging
 from decoration import DecoratedTree, CollapseMixin
 from nested import NestedTree
 from lru_cache import lru_cache
 
+# The following are used to check dynamically if a tree offers sub-APIs
+def decorates(tree):
+    """determines if given tree offers line decoration"""
+    return isinstance(tree, (DecoratedTree, NestedTree))
+
+
+def collapsible(tree):
+    """determines if given tree can collapse positions"""
+    res = False
+    if isinstance(tree, (CollapseMixin, NestedTree)):
+        res = True
+    return res
 
 class TreeListWalker(urwid.ListWalker):
     """
-    ListWalker to walk through a class:`Tree`
+    ListWalker to walk through a class:`Tree`.
+
+    This translates a :class:`Tree` into a :class:`urwid.ListWalker` that is
+    digestible by :class:`urwid.ListBox`.
     """
     def __init__(self, tree, focus=None):
         """
@@ -25,17 +39,13 @@ class TreeListWalker(urwid.ListWalker):
         self._tree = tree
         self._focus = focus or tree.root
         self.root = tree.root
-        self._line_cache = {}
-        self._next_position_cache = {}
-        self._prev_position_cache = {}
 
     @lru_cache()
     def __getitem__(self, pos):
-        if isinstance(self._tree, (DecoratedTree, NestedTree)):
+        if decorates(self._tree):
             entry = self._tree.get_decorated(pos)
         else:
             entry = self._tree[pos]
-        self._line_cache[pos] = entry
         return entry
 
     def _get(self, pos):
@@ -75,9 +85,6 @@ class TreeListWalker(urwid.ListWalker):
                 widget, pos = self.get_next(pos)
     # end of List Walker API
 
-    def clear_caches(self):
-        self.__getitem__.cache_clear()
-
 
 class TreeBox(WidgetWrap):
     """
@@ -94,7 +101,7 @@ class TreeBox(WidgetWrap):
     def __init__(self, tree, focus=None):
         """
         :param tree: tree of widgets to be displayed.
-        :type walker: Tree
+        :type tree: Tree
         """
         self._tree = tree
         self._walker = TreeListWalker(tree)
@@ -111,10 +118,8 @@ class TreeBox(WidgetWrap):
         return self._outer_list.set_focus(pos)
 
     def keypress(self, size, key):
-        #logging.debug('KEY')
-        #logging.debug('KEY: %s' %key)
         key = self._outer_list.keypress(size, key)
-        if key in ['left', 'right', '[', ']', '-', '+', 'C', 'E', 'enter']:
+        if key in ['left', 'right', '[', ']', '-', '+', 'C', 'E',]:
             if key == 'left':
                 self.focus_parent()
             elif key == 'right':
@@ -131,10 +136,6 @@ class TreeBox(WidgetWrap):
                 self.collapse_all()
             elif key == 'E':
                 self.expand_all()
-            elif key == 'enter':
-                ret = self._outer_list.keypress(size, key)
-                signals.emit_signal(self._walker, "modified")
-                return ret
             # This is a hack around ListBox misbehaving:
             # it seems impossible to set the focus without calling keypress as
             # otherwise the change becomes visible only after the next render()
@@ -144,30 +145,26 @@ class TreeBox(WidgetWrap):
 
     # Collapse operations
     def collapse_focussed(self):
-        if isinstance(self._tree, CollapseMixin):
+        if collapsible(self._tree):
             w, focuspos = self.get_focus()
             self._tree.collapse(focuspos)
-            self._walker.clear_caches()
             signals.emit_signal(self._walker, "modified")
 
     def expand_focussed(self):
-        if isinstance(self._tree, CollapseMixin):
+        if collapsible(self._tree):
             w, focuspos = self.get_focus()
             self._tree.expand(focuspos)
-            self._walker.clear_caches()
             signals.emit_signal(self._walker, "modified")
 
     def collapse_all(self):
-        if isinstance(self._tree, CollapseMixin):
+        if collapsible(self._tree):
             self._tree.collapse_all()
             self.set_focus(self._tree.root)
-            self._walker.clear_caches()
             signals.emit_signal(self._walker, "modified")
 
     def expand_all(self):
-        if isinstance(self._tree, CollapseMixin):
+        if collapsible(self._tree):
             self._tree.expand_all()
-            self._walker.clear_caches()
             signals.emit_signal(self._walker, "modified")
 
     # Tree based focus movement
@@ -186,7 +183,6 @@ class TreeBox(WidgetWrap):
     def focus_last_child(self):
         w, focuspos = self.get_focus()
         child = self._tree.last_child_position(focuspos)
-        logging.debug('last child of %s is %s' % (focuspos, child))
         if child is not None:
             self.set_focus(child)
 
