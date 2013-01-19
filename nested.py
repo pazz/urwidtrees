@@ -14,6 +14,8 @@ class NestedTree(Tree):
     This wrapper's positions are tuples of positions of the original and subtrees:
     For example, `(X,Y,Z)` points at position Z in tree/list at position Y in
     tree/list at position X in the original tree.
+
+    NestedTree transparently behaves like a collapsible DecoratedTree.
     """
     @property
     def root(self):
@@ -36,32 +38,31 @@ class NestedTree(Tree):
     def __getitem__(self, pos):
         return self._lookup_entry(self._tree, pos)
 
-    def get_decorated(self, pos):
-        return self._get_decorated_entry(self._tree, pos)
-
-    def _get_decorated_entry(self, tree, pos):
-        #logging.debug('GDE %s %s' % (str(tree), str(pos)))
-        #if len(pos) == 0:
-         #   pos = (tree.root,)
-        #else:
+    # DecoratedTree API
+    def _get_decorated_entry(self, tree, pos, widget=None, is_first=True):
         entry = tree[pos[0]]
-        #logging.debug('GDENTRY %s' % str(entry))
         if len(pos) > 1:
             subtree = entry
-            entry = self._get_decorated_entry(subtree, pos[1:])
-        #elif isinstance(entry, Tree):
-        #    entry = entry[entry.root]
-        if isinstance(tree, DecoratedTree):
-            #entry = tree.decorate(pos[0], entry, is_first=(len(pos)<2))
-            #logging.debug('EPOS %s' % str(pos))
+            entry = self._get_decorated_entry(
+                subtree, pos[1:], widget, is_first)
+        else:
+            entry = widget or entry
+        if isinstance(tree, (DecoratedTree, NestedTree)):  # has decorate-API
             isf = len(pos) < 2
             if not isf:
-                #logging.debug('EBOOL2: %s' % str(pos[1] == tree[pos[0]].root))
-                isf = pos[1] == tree[pos[0]].root
-                isf = (tree[pos[0]].parent_position(pos[1]) is None)
+                isf = (tree[pos[0]].parent_position(pos[1])
+                       is None) or not is_first
             entry = tree.decorate(pos[0], entry, is_first=isf)
         return entry
 
+    def get_decorated(self, pos):
+        return self._get_decorated_entry(self._tree, pos)
+
+    def decorate(self, pos, widget, is_first=True):
+        return self._get_decorated_entry(self._tree, pos, widget, is_first)
+
+    # Collapse API
+    # TODO
     def _lookup_entry(self, tree, pos):
         if len(pos) == 0:
             entry = tree[tree.root]
