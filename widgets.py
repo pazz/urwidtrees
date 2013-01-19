@@ -4,10 +4,10 @@
 import urwid
 from urwid import WidgetWrap, ListBox
 from urwid import signals
-from mixins import CollapseMixin
 import logging
 from decoration import DecoratedTree
 from nested import NestedTree
+from lru_cache import lru_cache
 
 
 class TreeListWalker(urwid.ListWalker):
@@ -25,12 +25,17 @@ class TreeListWalker(urwid.ListWalker):
         self._tree = tree
         self._focus = focus or tree.root
         self.root = tree.root
+        self._line_cache = {}
+        self._next_position_cache = {}
+        self._prev_position_cache = {}
 
+    @lru_cache()
     def __getitem__(self, pos):
         if isinstance(self._tree, (DecoratedTree, NestedTree)):
             entry = self._tree.get_decorated(pos)
         else:
             entry = self._tree[pos]
+        self._line_cache[pos] = entry
         return entry
 
     def _get(self, pos):
