@@ -515,11 +515,3 @@ class CollapsibleArrowTree(CollapseIconMixin, ArrowTree):
             overall_width += awidth
 
         return overall_width, urwid.Columns(cols)
-
-    # needs to be overwritten as CollapseMixin doesn't empty the caches
-    def set_collapsed_all(self, is_collapsed):
-        CollapseMixin.set_collapsed_all(self, is_collapsed)
-
-    def set_position_collapsed(self, pos, is_collapsed):
-        self.clear_cache()
-        CollapseMixin.set_position_collapsed(self, pos, is_collapsed)
