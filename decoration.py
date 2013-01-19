@@ -20,14 +20,6 @@ class DecoratedTree(Tree):
             content = SimpleTree(content)
         self._tree = content
         self.root = self._tree.root
-        self.parent_position = self._tree.parent_position
-        self.first_child_position = self._tree.first_child_position
-        self.last_child_position = self._tree.last_child_position
-        self.next_sibling_position = self._tree.next_sibling_position
-        self.prev_sibling_position = self._tree.prev_sibling_position
-
-    def __getitem__(self, pos):
-        return self._tree[pos]
 
     def get_decorated(self, pos):
         """
@@ -43,6 +35,25 @@ class DecoratedTree(Tree):
         that is *part* of the content at this position, but not the first part.
         This allows to omit incoming arrow heads for example.
         """
+        return self._tree[pos]
+    # pass on everything else to the original tree.
+
+    def parent_position(self, pos):
+        return self._tree.parent_position(pos)
+
+    def first_child_position(self, pos):
+        return self._tree.first_child_position(pos)
+
+    def last_child_position(self, pos):
+        return self._tree.last_child_position(pos)
+
+    def next_sibling_position(self, pos):
+        return self._tree.next_sibling_position(pos)
+
+    def prev_sibling_position(self, pos):
+        return self._tree.prev_sibling_position(pos)
+
+    def __getitem__(self, pos):
         return self._tree[pos]
 
 
@@ -68,15 +79,15 @@ class CollapseMixin(object):
     def last_child_position(self, pos):
         if self.is_collapsed(pos):
             return None
-        return self._walker.last_child_position(pos)
+        return self._tree.last_child_position(pos)
 
     def first_child_position(self, pos):
         if self.is_collapsed(pos):
             return None
-        return self._walker.first_child_position(pos)
+        return self._tree.first_child_position(pos)
 
     def collapsible(self, pos):
-        return not self._walker.is_leaf(pos)
+        return not self._tree.is_leaf(pos)
 
     def set_position_collapsed(self, pos, is_collapsed):
         if self.collapsible(pos):
@@ -136,7 +147,6 @@ class CollapseIconMixin(CollapseMixin):
                  icon_frame_left_char='[',
                  icon_frame_right_char=']',
                  icon_frame_att=None,
-                 selectable_icons=False,
                  icon_focussed_att=None,
                  **kwargs):
         CollapseMixin.__init__(self, is_collapsed, **kwargs)
@@ -147,7 +157,6 @@ class CollapseIconMixin(CollapseMixin):
         self._icon_frame_left_char = icon_frame_left_char
         self._icon_frame_right_char = icon_frame_right_char
         self._icon_frame_att = icon_frame_att
-        self._selectable_icons = selectable_icons
         self._icon_focussed_att = icon_focussed_att
 
     def _construct_collapse_icon(self, pos):
@@ -171,17 +180,7 @@ class CollapseIconMixin(CollapseMixin):
             # next we build out icon widget: we feed all markups to a Text,
             # make it selectable (to toggle collapse) if requested
             markup = (charatt, char)
-            if self._selectable_icons:
-                def keypress(key):
-                    if key == 'enter':
-                        self.toggle_collapsed(pos)
-                        key = None
-                    return key
-                widget = urwid.SelectableIcon(markup, keypress)
-                widget = urwid.AttrMap(widget, None,
-                                       focus_map=self._icon_focussed_att)
-            else:
-                widget = urwid.Text(markup)
+            widget = urwid.Text(markup)
             charlen = len(char)
             columns.append((charlen, widget))
             width += charlen
@@ -240,8 +239,8 @@ class CollapsibleIndentedTree(CollapseIconMixin, IndentedTree):
         :type icon_offset: int
         """
         self._icon_offset = icon_offset
-        CollapseIconMixin.__init__(self, **kwargs)
         IndentedTree.__init__(self, walker, indent=indent)
+        CollapseIconMixin.__init__(self, **kwargs)
 
     def decorate(self, pos, widget, is_first=True):
         """

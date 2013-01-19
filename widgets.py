@@ -5,7 +5,7 @@ import urwid
 from urwid import WidgetWrap, ListBox
 from urwid import signals
 import logging
-from decoration import DecoratedTree
+from decoration import DecoratedTree, CollapseMixin
 from nested import NestedTree
 from lru_cache import lru_cache
 
@@ -74,6 +74,9 @@ class TreeListWalker(urwid.ListWalker):
                 yield pos
                 widget, pos = self.get_next(pos)
     # end of List Walker API
+
+    def clear_caches(self):
+        self.__getitem__.cache_clear()
 
 
 class TreeBox(WidgetWrap):
@@ -144,23 +147,27 @@ class TreeBox(WidgetWrap):
         if isinstance(self._tree, CollapseMixin):
             w, focuspos = self.get_focus()
             self._tree.collapse(focuspos)
+            self._walker.clear_caches()
             signals.emit_signal(self._walker, "modified")
 
     def expand_focussed(self):
         if isinstance(self._tree, CollapseMixin):
             w, focuspos = self.get_focus()
             self._tree.expand(focuspos)
+            self._walker.clear_caches()
             signals.emit_signal(self._walker, "modified")
 
     def collapse_all(self):
         if isinstance(self._tree, CollapseMixin):
             self._tree.collapse_all()
             self.set_focus(self._tree.root)
+            self._walker.clear_caches()
             signals.emit_signal(self._walker, "modified")
 
     def expand_all(self):
         if isinstance(self._tree, CollapseMixin):
             self._tree.expand_all()
+            self._walker.clear_caches()
             signals.emit_signal(self._walker, "modified")
 
     # Tree based focus movement
