@@ -117,19 +117,6 @@ class CollapseMixin(object):
     def expand(self, pos):
         self.set_position_collapsed(pos, False)
 
-    def clear_from_caches(self, pos):
-        if pos in self._cache:
-            del(self._cache[pos])
-        if pos in self._next_cache:
-            del(self._next_cache[pos])
-        if pos in self._prev_cache:
-            del(self._prev_cache[pos])
-
-    def clear_caches(self):
-        self._cache = {}
-        self._next_cache = {}
-        self._prev_cache = {}
-
 
 class CollapseIconMixin(CollapseMixin):
     """
@@ -289,15 +276,6 @@ class CollapsibleIndentedTree(CollapseIconMixin, IndentedTree):
         line = urwid.Columns(cols, box_columns=range(len(cols))[:-1])
 
         return line
-
-    # needs to be overwritten as CollapseMixin doesn't empty the caches
-    def set_collapsed_all(self, is_collapsed):
-        CollapseMixin.clear_caches(self)
-        CollapseMixin.set_collapsed_all(self, is_collapsed)
-
-    def set_position_collapsed(self, pos, is_collapsed):
-        CollapseMixin.clear_caches(self)
-        CollapseMixin.set_position_collapsed(self, pos, is_collapsed)
 
 
 class ArrowTree(IndentedTree):
