@@ -2,7 +2,7 @@
 # This file is released under the GNU GPL, version 3 or a later revision.
 from tree import Tree
 import logging
-from decoration import DecoratedTree
+from decoration import DecoratedTree, CollapseMixin
 
 
 class NestedTree(Tree):
@@ -23,6 +23,16 @@ class NestedTree(Tree):
 
     def __init__(self, tree):
         self._tree = tree
+
+    def _lookup_entry(self, tree, pos):
+        if len(pos) == 0:
+            entry = tree[tree.root]
+        else:
+            entry = tree[pos[0]]
+            if len(pos) > 1:
+                subtree = entry
+                entry = self._lookup_entry(subtree, pos[1:])
+        return entry
 
     def _depth(self, tree, pos, outmost_only=True):
         depth = self._tree.depth(pos[1:])
@@ -62,26 +72,82 @@ class NestedTree(Tree):
         return self._get_decorated_entry(self._tree, pos, widget, is_first)
 
     # Collapse API
-    # TODO
-    def _lookup_entry(self, tree, pos):
-        if len(pos) == 0:
-            entry = tree[tree.root]
-        else:
-            entry = tree[pos[0]]
+    def _get_subtree_for(self, pos):
+        """returns Tree that manages pos[-1]"""
+        res = self._tree
+        candidate = self._lookup_entry(self._tree, pos[:-1])
+        if isinstance(candidate, Tree):
+            res = candidate
+        return res
+
+    def collapsible(self, pos):
+        res = False
+        subtree = self._get_subtree_for(pos)
+        if isinstance(subtree, (CollapseMixin, NestedTree)):
+            res = subtree.collapsible(pos[-1])
+        return res
+
+    def is_collapsed(self, pos):
+        res = False
+        subtree = self._get_subtree_for(pos)
+        if isinstance(subtree, (CollapseMixin, NestedTree)):
+            res = subtree.is_collapsed(pos[-1])
+        return res
+
+    def toggle_collapsed(self, pos):
+        subtree = self._get_subtree_for(pos)
+        if isinstance(subtree, (CollapseMixin, NestedTree)):
+            subtree.toggle_collapsed(pos)
+
+    def collapse(self, pos):
+        subtree = self._get_subtree_for(pos)
+        if isinstance(subtree, (CollapseMixin, NestedTree)):
+            subtree.collapse(pos[-1])
+
+    def collapse_all(self):
+        self._collapse_all(self._tree, self.root)
+
+    def _collapse_all(self, tree, pos=None):
+        if pos is not None:
+            if isinstance(tree, (CollapseMixin, NestedTree)):
+                tree.expand_all()
+
             if len(pos) > 1:
-                subtree = entry
-                entry = self._lookup_entry(subtree, pos[1:])
-                #entry = subtree[subtree.root]
-        #if isinstance(entry, Tree):
-        #    entry = entry[entry.root]
-        return entry
+                self._collapse_all(tree[pos[0]], pos[1:])
+            nextpos = tree.next_position(pos[0])
+            if nextpos is not None:
+                nentry = tree[nextpos]
+                if isinstance(nentry, Tree):
+                    self._collapse_all(nentry, (nentry.root,))
+                self._collapse_all(tree, (nextpos,))
+            if isinstance(tree, (CollapseMixin, NestedTree)):
+                tree.collapse_all()
+
+    def expand(self, pos):
+        subtree = self._get_subtree_for(pos)
+        if isinstance(subtree, (CollapseMixin, NestedTree)):
+            subtree.expand(pos[-1])
+
+    def expand_all(self):
+        self._expand_all(self._tree, self.root)
+
+    def _expand_all(self, tree, pos=None):
+        if pos is not None:
+            if isinstance(tree, (CollapseMixin, NestedTree)):
+                tree.expand_all()
+            if len(pos) > 1:
+                self._expand_all(tree[pos[0]], pos[1:])
+            nextpos = tree.next_position(pos[0])
+            if nextpos is not None:
+                nentry = tree[nextpos]
+                if isinstance(nentry, Tree):
+                    self._expand_all(nentry, (nentry.root,))
+                self._expand_all(tree, (nextpos,))
+            if isinstance(tree, (CollapseMixin, NestedTree)):
+                tree.expand_all()
 
     def is_leaf(self, pos, outmost_only=False):
         return self.first_child_position(pos, outmost_only) is None
-
-    def get_owner(self, pos):
-        """returns Tree that manages pos[-1]"""
-        return self._lookup_entry(pos[:-1])
 
     def parent_position(self, pos):
         candidate_pos = None
