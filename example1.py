@@ -40,12 +40,12 @@ def construct_example_tree(selectable_nodes=True, children=2):
 
     # define some children
     c = g = gg = 0  # counter
-    for i in range(2):
+    for i in range(children):
         subtree = (FocusableText('Child %d' % c), [])
         # and grandchildren..
-        for j in range(2):
+        for j in range(children):
             subsubtree = (FocusableText('Grandchild %d' % g), [])
-            for k in range(3):
+            for k in range(children):
                 leaf = (FocusableText('Grand Grandchild %d' % gg), None)
                 subsubtree[1].append(leaf)
                 gg += 1  # inc grand-grandchild counter
@@ -56,7 +56,7 @@ def construct_example_tree(selectable_nodes=True, children=2):
     return tree
 
 # define a list of trees to be passed on to SimpleTree
-forrest = [construct_example_tree()]
+forrest = [construct_example_tree(children=4)]
 
 # stick out test tree into a SimpleTree
 stree = SimpleTree(forrest)
