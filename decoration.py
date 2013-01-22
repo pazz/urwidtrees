@@ -2,6 +2,7 @@
 # This file is released under the GNU GPL, version 3 or a later revision.
 from tree import Tree, SimpleTree
 import urwid
+import logging
 
 NO_SPACE_MSG = 'too little space for requested decoration'
 
@@ -438,7 +439,7 @@ class ArrowTree(IndentedTree):
                 else:
                     parent = self._tree.parent_position(pos)
                     if self._indent > 0 and parent is not None:
-                        parent_sib = self._tree.next_sibling_position(parent)
+                        parent_sib = self._tree.next_sibling_position(pos)
                         draw_vbar = parent_sib is not None
                         void = urwid.AttrMap(urwid.SolidFill(' '),
                                              self._arrow_att)
@@ -452,6 +453,8 @@ class ArrowTree(IndentedTree):
                                 1 - self._childbar_offset
                             cols.append((1, bar))
                             cols.append((rspace_width, void))
+                        else:
+                            cols.append((self._indent, void))
 
             # add the original widget for this line
             cols.append(original_widget)
