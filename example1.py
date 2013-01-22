@@ -16,37 +16,43 @@ palette = [
     ('connectors', 'light red', 'light gray', ''),
 ]
 
+# We use selectable Text widgets for our example..
+
+
+class FocusableText(urwid.WidgetWrap):
+    """Selectable Text used for nodes in our example"""
+    def __init__(self, txt):
+        t = urwid.Text(txt)
+        w = urwid.AttrMap(t, 'body', 'focus')
+        urwid.WidgetWrap.__init__(self, w)
+
+    def selectable(self):
+        return True
+
+    def keypress(self, size, key):
+        return key
+
 # define a test tree in the format accepted by SimpleTree. Essentially, a
 # tree is given as (nodewidget, [list, of, subtrees]). SimpleTree accepts
 # lists of such trees.
 
 
-def construct_example_tree(selectable_nodes=True, children=2):
-    class FocusableText(urwid.WidgetWrap):
-        """Selectable Text used for nodes in our example"""
-        def __init__(self, txt):
-            t = urwid.Text(txt)
-            w = urwid.AttrMap(t, 'body', 'focus')
-            urwid.WidgetWrap.__init__(self, w)
+def construct_example_simpletree_structure(selectable_nodes=True, children=3):
 
-        def selectable(self):
-            return selectable_nodes
-
-        def keypress(self, size, key):
-            return key
+    Text = FocusableText if selectable_nodes else urwid.Text
 
     # define root node
-    tree = (FocusableText('ROOT'), [])
+    tree = (Text('ROOT'), [])
 
     # define some children
     c = g = gg = 0  # counter
     for i in range(children):
-        subtree = (FocusableText('Child %d' % c), [])
+        subtree = (Text('Child %d' % c), [])
         # and grandchildren..
         for j in range(children):
-            subsubtree = (FocusableText('Grandchild %d' % g), [])
+            subsubtree = (Text('Grandchild %d' % g), [])
             for k in range(children):
-                leaf = (FocusableText('Grand Grandchild %d' % gg), None)
+                leaf = (Text('Grand Grandchild %d' % gg), None)
                 subsubtree[1].append(leaf)
                 gg += 1  # inc grand-grandchild counter
             subtree[1].append(subsubtree)
@@ -55,13 +61,19 @@ def construct_example_tree(selectable_nodes=True, children=2):
         c += 1
     return tree
 
-# define a list of trees to be passed on to SimpleTree
-forrest = [construct_example_tree(children=4)]
 
-# stick out test tree into a SimpleTree
-stree = SimpleTree(forrest)
+def construct_example_tree(selectable_nodes=True, children=2):
+    # define a list of tree structures to be passed on to SimpleTree
+    forrest = [construct_example_simpletree_structure(selectable_nodes,
+                                                      children)]
+
+    # stick out test tree into a SimpleTree and return
+    return SimpleTree(forrest)
 
 if __name__ == "__main__":
+    # get example tree
+    stree = construct_example_tree()
+
     # put the tree into a treebox
     treebox = TreeBox(stree)
 

@@ -108,7 +108,7 @@ if __name__ == "__main__":
     cwd = os.getcwd()  # get current working directory
     dtree = DirectoryTree()  # get a directory walker
 
-    # Use CollapsibleArrowTree for decoration..
+    # Use CollapsibleArrowTree for decoration.
     # define initial collapse:
     as_deep_as_cwd = lambda pos: dtree.depth(pos) >= dtree.depth(cwd)
 
