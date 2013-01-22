@@ -2,13 +2,14 @@
 # Copyright (C) 2013  Patrick Totzke <patricktotzke@gmail.com>
 # This file is released under the GNU GPL, version 3 or a later revision.
 
-from example1 import stree, palette  # example data
+from example1 import construct_example_tree, palette  # example data
 from decoration import ArrowTree  # for Decoration
 from widgets import TreeBox
 import urwid
 
 if __name__ == "__main__":
-    # We re-use the tree `stree` defined in example1.
+    # get example tree
+    stree = construct_example_tree()
     # Here, we add some decoration by wrapping the tree using ArrowTree.
     atree = ArrowTree(stree,
                       # customize at will..
