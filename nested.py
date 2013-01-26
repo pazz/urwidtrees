@@ -54,6 +54,7 @@ class NestedTree(Tree):
 
     # DecoratedTree API
     def _get_decorated_entry(self, tree, pos, widget=None, is_first=True):
+        #logging.debug('DECORATED: %s %s %s' % (tree,str(pos), widget))
         entry = tree[pos[0]]
         if len(pos) > 1 and isinstance(entry, Tree):
             subtree = entry
@@ -168,6 +169,9 @@ class NestedTree(Tree):
             outer_parent = self._tree.parent_position(pos[0])
             if outer_parent is not None:
                 candidate_pos = outer_parent,
+                entry = self._tree[outer_parent]
+                if isinstance(entry, Tree):
+                    candidate_pos = candidate_pos + (entry.root,)
         return candidate_pos
 
     def first_child_position(self, pos, outmost_only=False):
@@ -175,21 +179,22 @@ class NestedTree(Tree):
 
     def _first_child_position(self, tree, pos, outmost_only=False):
         childpos = None
-        if len(pos) == 0:
-            pos = (tree.root,)
         entry = tree[pos[0]]
         if isinstance(entry, Tree) and not outmost_only:
             subchild = self._first_child_position(entry, pos[1:])
             if subchild is not None:
                 childpos = (pos[0],) + subchild
-        else:
-            child = tree.first_child_position(pos[0])
-            if child is not None:
-                entry = tree[child]
-                if isinstance(entry, Tree):
-                    childpos = (child,) + (entry.root,)
-                else:
-                    childpos = child,
+                return childpos
+            elif entry.parent_position(pos[1]) is not None:
+                return None
+
+        child = tree.first_child_position(pos[0])
+        if child is not None:
+            entry = tree[child]
+            if isinstance(entry, Tree):
+                childpos = (child,) + (entry.root,)
+            else:
+                childpos = child,
         return childpos
 
     def last_child_position(self, pos, outmost_only=False):
@@ -197,17 +202,22 @@ class NestedTree(Tree):
 
     def _last_child_position(self, tree, pos, outmost_only=False):
         childpos = None
-        if len(pos) == 0:
-            pos = (tree.root,)
         entry = tree[pos[0]]
         if isinstance(entry, Tree) and not outmost_only:
             subchild = self._last_child_position(entry, pos[1:])
             if subchild is not None:
                 childpos = (pos[0],) + subchild
-        else:
-            subchild = tree.last_child_position(pos[0])
-            if subchild is not None:
-                childpos = subchild,
+                return childpos
+            elif len(pos)>1:
+                if entry.parent_position(pos[1]) is not None:
+                    return None
+        child = tree.last_child_position(pos[0])
+        if child is not None:
+            entry = tree[child]
+            if isinstance(entry, Tree):
+                childpos = (child,) + (entry.root,)
+            else:
+                childpos = child,
         return childpos
 
     def _next_sibling_position(self, tree, pos):
@@ -222,6 +232,9 @@ class NestedTree(Tree):
                 next_sib = tree.next_sibling_position(pos[0])
                 if next_sib is not None:
                     candidate = next_sib,
+                    entry = tree[next_sib]
+                    if isinstance(entry, Tree):
+                        candidate = candidate + (entry.root,)
         else:
             next_sib = tree.next_sibling_position(pos[0])
             if next_sib is not None:
@@ -246,6 +259,9 @@ class NestedTree(Tree):
                 prev_sib = tree.prev_sibling_position(pos[0])
                 if prev_sib is not None:
                     candidate = prev_sib,
+                    entry = tree[prev_sib]
+                    if isinstance(entry, Tree):
+                        candidate = candidate + (entry.root,)
         else:
             prev_sib = tree.prev_sibling_position(pos[0])
             if prev_sib is not None:
