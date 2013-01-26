@@ -19,7 +19,11 @@ class NestedTree(Tree):
     """
     @property
     def root(self):
-        return (self._tree.root,)
+        root = (self._tree.root,)
+        rcontent = self._tree[self._tree.root]
+        if isinstance(rcontent, Tree):
+            root = root + (rcontent.root,)
+        return root
 
     def __init__(self, tree):
         self._tree = tree
