@@ -28,10 +28,12 @@ class TreeListWalker(urwid.ListWalker):
 
     This translates a :class:`Tree` into a :class:`urwid.ListWalker` that is
     digestible by :class:`urwid.ListBox`.
+    It uses :meth:`Tree.[next|prev]_position <Tree.next_position>` to determine
+    the next/previous position in depth first order.
     """
     def __init__(self, tree, focus=None):
         """
-        :param tree: the tree of widgets to be displayed
+        :param tree: the tree to be displayed
         :type tree: Tree
         :param focus: position of node to be focussed initially.
             This has to be a valid position in the Tree.
@@ -43,6 +45,7 @@ class TreeListWalker(urwid.ListWalker):
 
     @lru_cache()
     def __getitem__(self, pos):
+        """gets (possibly decorated) line widget at given position"""
         if implementsDecorateAPI(self._tree):
             entry = self._tree.get_decorated(pos)
         else:
@@ -50,7 +53,7 @@ class TreeListWalker(urwid.ListWalker):
         return entry
 
     def _get(self, pos):
-        """loads widget at given position; handling invalid arguments"""
+        """looks up widget for given position; handling invalid arguments"""
         res = None, None
         if pos is not None:
             try:
