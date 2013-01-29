@@ -52,6 +52,10 @@ class TreeListWalker(urwid.ListWalker):
             entry = self._tree[pos]
         return entry
 
+    def clear_cache(self):
+        """removes all cached lines"""
+        self.__getitem__.cache_clear()
+
     def _get(self, pos):
         """looks up widget for given position; handling invalid arguments"""
         res = None, None
@@ -76,21 +80,9 @@ class TreeListWalker(urwid.ListWalker):
         return self._get(self._tree.prev_position(pos))
 
     def positions(self, reverse=False):
-        if reverse:
-            pos = self._tree.last_sibling_position(self._tree.root)
-            pos = self._tree.last_decendant(pos)
-            while pos is not None:
-                yield pos
-                widget, pos = self.get_prev(pos)
-        else:
-            pos = self._tree.root
-            while pos is not None:
-                yield pos
-                widget, pos = self.get_next(pos)
+        """returns a generator that walks the tree's positions"""
+        return self._tree.positions(reverse)
     # end of List Walker API
-
-    def clear_cache(self):
-        self.__getitem__.cache_clear()
 
 
 class TreeBox(WidgetWrap):
