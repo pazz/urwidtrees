@@ -13,11 +13,12 @@ class TreeDecorationError(Exception):
 
 class DecoratedTree(Tree):
     """
-    Tree that wraps around another tree and allows to read
+    :class:`Tree` that wraps around another :class:`Tree` and allows to read
     original content as well as decorated versions thereof.
     """
     def __init__(self, content):
         if not isinstance(content, Tree):
+            # do we need this?
             content = SimpleTree(content)
         self._tree = content
         self.root = self._tree.root
@@ -33,10 +34,11 @@ class DecoratedTree(Tree):
         """
         decorate `widget` according to a position `pos` in the original tree.
         setting `is_first` to False indicates that we are decorating a line
-        that is *part* of the content at this position, but not the first part.
-        This allows to omit incoming arrow heads for example.
+        that is *part* of the (multi-line) content at this position, but not
+        the first part. This allows to omit incoming arrow heads for example.
         """
         return self._tree[pos]
+
     # pass on everything else to the original tree.
 
     def parent_position(self, pos):
@@ -60,11 +62,13 @@ class DecoratedTree(Tree):
 
 class CollapseMixin(object):
     """
-    Mixin for Tree that allows to collapse subtrees.
-    This works by overwriting `(last|first)_child_position`, forcing them to
+    Mixin for :class:`Tree` that allows to collapse subtrees.
+
+    This works by overwriting
+    :meth:`[first|last]_child_position <first_child_position>`, forcing them to
     return `None` if the given position is considered collapsed. We use a
-    (given) callable `is_collapsed` that accepts positions and returns a boolean
-    to determine which node is considered collapsed.
+    (given) callable `is_collapsed` that accepts positions and returns a boolean to
+    determine which node is considered collapsed.
     """
     def __init__(self, is_collapsed=lambda pos: False,
                  **kwargs):
@@ -72,10 +76,17 @@ class CollapseMixin(object):
         self._divergent_positions = []
 
     def is_collapsed(self, pos):
+        """checks if given position is currently collapsed"""
         collapsed = self._initially_collapsed(pos)
         if pos in self._divergent_positions:
             collapsed = not collapsed
         return collapsed
+
+    # implement functionality by overwriting local position transformations
+
+    # TODO: ATM this assumes we are in a wrapper: it uses self._tree.
+    # This is not necessarily true, for example for subclasses of SimpleTree!
+    # maybe define this whole class as a wrapper?
 
     def last_child_position(self, pos):
         if self.is_collapsed(pos):
@@ -121,7 +132,7 @@ class CollapseMixin(object):
 
 class CollapseIconMixin(CollapseMixin):
     """
-    Mixin for Tree that allows to allows to collapse subtrees
+    Mixin for :classs:`Tree` that allows to allows to collapse subtrees
     and use an indicator icon in line decorations.
     This Mixin adds the ability to construct collapse-icon for a
     position, indicating its collapse status to :class:`CollapseMixin`.
@@ -137,6 +148,7 @@ class CollapseIconMixin(CollapseMixin):
                  icon_frame_att=None,
                  icon_focussed_att=None,
                  **kwargs):
+        """TODO: docstrings"""
         CollapseMixin.__init__(self, is_collapsed, **kwargs)
         self._icon_collapsed_char = icon_collapsed_char
         self._icon_expanded_char = icon_expanded_char
