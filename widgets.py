@@ -10,6 +10,8 @@ from nested import NestedTree
 from lru_cache import lru_cache
 
 # The following are used to check dynamically if a tree offers sub-APIs
+
+
 def implementsDecorateAPI(tree):
     """determines if given tree offers line decoration"""
     return isinstance(tree, (DecoratedTree, NestedTree))
@@ -21,6 +23,7 @@ def implementsCollapseAPI(tree):
     if isinstance(tree, (CollapseMixin, NestedTree)):
         res = True
     return res
+
 
 class TreeListWalker(urwid.ListWalker):
     """
@@ -87,11 +90,11 @@ class TreeListWalker(urwid.ListWalker):
 
 class TreeBox(WidgetWrap):
     """
-    A widget representing something in a nested tree display.
-    This is essentially a ListBox with the ability to move the focus based on
-    directions in the Tree.
+    A widget that displays a given :class:`Tree`.
+    This is essentially a :class:`ListBox` with the ability to move the focus based on
+    directions in the Tree and to collapse/expand subtrees if possible.
 
-    TreeBox interprets `left/right` as well as page `up/down` to move the focus
+    TreeBox interprets `left/right` as well as `page up/`page down` to move the focus
     to parent/first child and next/previous sibling respectively. All other
     keys are passed to the underlying ListBox.
     """
@@ -101,6 +104,7 @@ class TreeBox(WidgetWrap):
         """
         :param tree: tree of widgets to be displayed.
         :type tree: Tree
+        :param focus: initially focussed position
         """
         self._tree = tree
         self._walker = TreeListWalker(tree)
@@ -118,7 +122,7 @@ class TreeBox(WidgetWrap):
 
     def keypress(self, size, key):
         key = self._outer_list.keypress(size, key)
-        if key in ['left', 'right', '[', ']', '-', '+', 'C', 'E',]:
+        if key in ['left', 'right', '[', ']', '-', '+', 'C', 'E', ]:
             if key == 'left':
                 self.focus_parent()
             elif key == 'right':
@@ -144,6 +148,10 @@ class TreeBox(WidgetWrap):
 
     # Collapse operations
     def collapse_focussed(self):
+        """
+        Collapse currently focussed position; works only if the underlying
+        tree allows it.
+        """
         if implementsCollapseAPI(self._tree):
             w, focuspos = self.get_focus()
             self._tree.collapse(focuspos)
@@ -151,6 +159,10 @@ class TreeBox(WidgetWrap):
             signals.emit_signal(self._walker, "modified")
 
     def expand_focussed(self):
+        """
+        Expand currently focussed position; works only if the underlying
+        tree allows it.
+        """
         if implementsCollapseAPI(self._tree):
             w, focuspos = self.get_focus()
             self._tree.expand(focuspos)
@@ -158,6 +170,9 @@ class TreeBox(WidgetWrap):
             signals.emit_signal(self._walker, "modified")
 
     def collapse_all(self):
+        """
+        Collapse all positions; works only if the underlying tree allows it.
+        """
         if implementsCollapseAPI(self._tree):
             self._tree.collapse_all()
             self.set_focus(self._tree.root)
@@ -165,6 +180,9 @@ class TreeBox(WidgetWrap):
             signals.emit_signal(self._walker, "modified")
 
     def expand_all(self):
+        """
+        Expand all positions; works only if the underlying tree allows it.
+        """
         if implementsCollapseAPI(self._tree):
             self._tree.expand_all()
             self._walker.clear_cache()
@@ -172,30 +190,35 @@ class TreeBox(WidgetWrap):
 
     # Tree based focus movement
     def focus_parent(self):
+        """move focus to parent node of currently focussed one"""
         w, focuspos = self.get_focus()
         parent = self._tree.parent_position(focuspos)
         if parent is not None:
             self.set_focus(parent)
 
     def focus_first_child(self):
+        """move focus to first child of currently focussed one"""
         w, focuspos = self.get_focus()
         child = self._tree.first_child_position(focuspos)
         if child is not None:
             self.set_focus(child)
 
     def focus_last_child(self):
+        """move focus to last child of currently focussed one"""
         w, focuspos = self.get_focus()
         child = self._tree.last_child_position(focuspos)
         if child is not None:
             self.set_focus(child)
 
     def focus_next_sibling(self):
+        """move focus to next sibling of currently focussed one"""
         w, focuspos = self.get_focus()
         sib = self._tree.next_sibling_position(focuspos)
         if sib is not None:
             self.set_focus(sib)
 
     def focus_prev_sibling(self):
+        """move focus to previous sibling of currently focussed one"""
         w, focuspos = self.get_focus()
         sib = self._tree.prev_sibling_position(focuspos)
         if sib is not None:
