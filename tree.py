@@ -6,21 +6,27 @@ import logging
 
 class Tree(object):
     """
-    Base class for a structured walk over acyclic graphs that can be displayed
-    by :class:`TreeBox` widgets.
+    Base class for a tree strucures that can be displayed by :class:`TreeBox`
+    widgets. An instance defines a structure by defining local transformations
+    on positions. That is, by overwriting
 
-    Subclasses may implement methods
      * `next_sibling_position`
      * `prev_sibling_position`
      * `parent_position`
      * `first_child_position`
      * `last_child_position`
 
-     that compute the next position in the respective direction. Also, they
-     need to implement method `__getitem__` that returns a widget for a given position.
+    that compute the next position in the respective direction. Also, they need
+    to implement method `__getitem__` that returns a :class:`Widget` for a
+    given position.
 
-     The type of objects used as positions may vary in subclasses and is deliberately
-     unspecified for the base class.
+    The type of objects used as positions may vary in subclasses and is
+    deliberately unspecified for the base class.
+
+    This base class already implements methods based on the local
+    transformations above. These include :meth:`depth`, :meth:`last_decendant`
+    and :meth:`[next|prev]_position <next_position>` that computes
+    next/previous positions in depth-first order.
     """
     root = None
 
@@ -60,7 +66,7 @@ class Tree(object):
         recursively move in the tree in given direction
         and return the last position.
 
-        :param starting_pos: position to start in
+        :param starting_pos: position to start at
         :param direction: callable that transforms a position into a position.
         """
         next_pos = direction(starting_pos)
@@ -78,12 +84,13 @@ class Tree(object):
             return self.depth(parent) + 1
 
     def is_leaf(self, pos):
+        """checks if given position has no children"""
         return self.first_child_position(pos) is None
 
     def first_ancestor(self, pos):
         """
-        position of pos's ancestor with depth 0.  usually, this should return
-        the root node, but a Walker might represent a Forrest - have multiple
+        position of pos's ancestor with depth 0. Usually, this should return
+        the root node, but a :class:`Tree` might represent a forrest - have multiple
         nodes without parent.
         """
         return self._last_in_direction(pos, self.parent_position)
@@ -140,12 +147,10 @@ class Tree(object):
                     current = self.next_position(current)
         return Posgen(reverse)
 
-
     ####################################################################
     # End of high-level helper implementation. The following need to be
     # overwritten by subclasses
     ####################################################################
-
     def parent_position(self, pos):
         """returns the position of the parent node of the node at `pos`
         or `None` if none exists."""
