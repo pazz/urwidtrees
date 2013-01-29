@@ -10,12 +10,12 @@ from nested import NestedTree
 from lru_cache import lru_cache
 
 # The following are used to check dynamically if a tree offers sub-APIs
-def decorates(tree):
+def implementsDecorateAPI(tree):
     """determines if given tree offers line decoration"""
     return isinstance(tree, (DecoratedTree, NestedTree))
 
 
-def collapsible(tree):
+def implementsCollapseAPI(tree):
     """determines if given tree can collapse positions"""
     res = False
     if isinstance(tree, (CollapseMixin, NestedTree)):
@@ -43,7 +43,7 @@ class TreeListWalker(urwid.ListWalker):
 
     @lru_cache()
     def __getitem__(self, pos):
-        if decorates(self._tree):
+        if implementsDecorateAPI(self._tree):
             entry = self._tree.get_decorated(pos)
         else:
             entry = self._tree[pos]
@@ -149,28 +149,28 @@ class TreeBox(WidgetWrap):
 
     # Collapse operations
     def collapse_focussed(self):
-        if collapsible(self._tree):
+        if implementsCollapseAPI(self._tree):
             w, focuspos = self.get_focus()
             self._tree.collapse(focuspos)
             self._walker.clear_cache()
             signals.emit_signal(self._walker, "modified")
 
     def expand_focussed(self):
-        if collapsible(self._tree):
+        if implementsCollapseAPI(self._tree):
             w, focuspos = self.get_focus()
             self._tree.expand(focuspos)
             self._walker.clear_cache()
             signals.emit_signal(self._walker, "modified")
 
     def collapse_all(self):
-        if collapsible(self._tree):
+        if implementsCollapseAPI(self._tree):
             self._tree.collapse_all()
             self.set_focus(self._tree.root)
             self._walker.clear_cache()
             signals.emit_signal(self._walker, "modified")
 
     def expand_all(self):
-        if collapsible(self._tree):
+        if implementsCollapseAPI(self._tree):
             self._tree.expand_all()
             self._walker.clear_cache()
             signals.emit_signal(self._walker, "modified")
