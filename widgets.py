@@ -98,7 +98,6 @@ class TreeBox(WidgetWrap):
     to parent/first child and next/previous sibling respectively. All other
     keys are passed to the underlying ListBox.
     """
-    _selectable = True
 
     def __init__(self, tree, focus=None):
         """
