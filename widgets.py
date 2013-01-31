@@ -119,6 +119,9 @@ class TreeBox(WidgetWrap):
     def set_focus(self, pos):
         return self._outer_list.set_focus(pos)
 
+    def refresh(self):
+        signals.emit_signal(self._walker, "modified")
+
     def keypress(self, size, key):
         key = self._outer_list.keypress(size, key)
         if key in ['left', 'right', '[', ']', '-', '+', 'C', 'E', ]:
@@ -155,7 +158,7 @@ class TreeBox(WidgetWrap):
             w, focuspos = self.get_focus()
             self._tree.collapse(focuspos)
             self._walker.clear_cache()
-            signals.emit_signal(self._walker, "modified")
+            self.refresh()
 
     def expand_focussed(self):
         """
@@ -166,7 +169,7 @@ class TreeBox(WidgetWrap):
             w, focuspos = self.get_focus()
             self._tree.expand(focuspos)
             self._walker.clear_cache()
-            signals.emit_signal(self._walker, "modified")
+            self.refresh()
 
     def collapse_all(self):
         """
@@ -176,7 +179,7 @@ class TreeBox(WidgetWrap):
             self._tree.collapse_all()
             self.set_focus(self._tree.root)
             self._walker.clear_cache()
-            signals.emit_signal(self._walker, "modified")
+            self.refresh()
 
     def expand_all(self):
         """
@@ -185,7 +188,7 @@ class TreeBox(WidgetWrap):
         if implementsCollapseAPI(self._tree):
             self._tree.expand_all()
             self._walker.clear_cache()
-            signals.emit_signal(self._walker, "modified")
+            self.refresh()
 
     # Tree based focus movement
     def focus_parent(self):
