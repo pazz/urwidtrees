@@ -25,7 +25,7 @@ class NestedTree(Tree):
             root = root + (rcontent.root,)
         return root
 
-    def sanitize_position(self, pos, tree=None):
+    def _sanitize_position(self, pos, tree=None):
         """
         Ensure a position tuple until the result does not
         point to a :class:`Tree` any more.
@@ -34,7 +34,7 @@ class NestedTree(Tree):
             tree = tree or self._tree
             entry = self._lookup_entry(tree, pos)
             if isinstance(entry, Tree):
-                pos = pos + self.sanitize_position((entry.root,), tree=entry)
+                pos = pos + self._sanitize_position((entry.root,), tree=entry)
         return pos
 
     def __init__(self, tree, interpret_covered=False):
@@ -77,7 +77,7 @@ class NestedTree(Tree):
             entry = widget or entry
         if isinstance(tree, (DecoratedTree, NestedTree)):  # has decorate-API
             isf = len(pos) < 2
-            if not isf and isinstance(tree[pos[0]],Tree):
+            if not isf and isinstance(tree[pos[0]], Tree):
                 isf = (tree[pos[0]].parent_position(pos[1])
                        is None) or not is_first
             entry = tree.decorate(pos[0], entry, is_first=isf)
@@ -167,112 +167,134 @@ class NestedTree(Tree):
     def is_leaf(self, pos, outmost_only=False):
         return self.first_child_position(pos, outmost_only) is None
 
+    ################################################
+    # Tree API
+    ################################################
     def parent_position(self, pos):
         candidate_pos = None
         if len(pos) > 1:
+            # get the deepest subtree
             subtree_pos = pos[:-1]
-            least_pos = pos[-1]
             subtree = self._lookup_entry(self._tree, subtree_pos)
+            # get parent for our position in this subtree
+            least_pos = pos[-1]
             subparent_pos = subtree.parent_position(least_pos)
             if subparent_pos is not None:
+                # in case there is one, we are done, the position we look for is
+                # the path up to the subtree plus the local parent position.
                 candidate_pos = subtree_pos + (subparent_pos,)
             else:
+                # otherwise we recur and look for subtree's parent in the next
+                # outer tree
                 candidate_pos = self.parent_position(subtree_pos)
         else:
+            # there is only one position in the path, we return its parent in
+            # the outmost tree
             outer_parent = self._tree.parent_position(pos[0])
             if outer_parent is not None:
+                # the result needs to be a valid position (tuple of local positions)
                 candidate_pos = outer_parent,
-        return self.sanitize_position(candidate_pos)
+        # return sanitized path (makes sure it points to content, not a subtree)
+        return self._sanitize_position(candidate_pos)
 
     def first_child_position(self, pos, outmost_only=False):
-        return self._first_child_position(self._tree, pos, outmost_only)
+        childpos = self._first_child_position(self._tree, pos, outmost_only)
+        return self._sanitize_position(childpos, self._tree)
 
     def _first_child_position(self, tree, pos, outmost_only=False):
-        logging.debug('first child pos: %s %s' %(tree,str(pos)))
         childpos = None
+        # get content at first path element in outmost tree
         entry = tree[pos[0]]
         if isinstance(entry, Tree) and not outmost_only:
-            #logging.debug('FC pos is tree: %s' %(str(pos)))
+            # this points to a tree and we don't check the outmost tree only
+            # recur: get first child in the subtree for remaining path
             subchild = self._first_child_position(entry, pos[1:])
-            #logging.debug('FC with child pos: %s' %(str(subchild)))
             if subchild is not None:
+                # found a childposition, re-append the path up to this subtree
                 childpos = (pos[0],) + subchild
                 return childpos
             else:
-                #logging.debug('FC checking parent of %s in %s' %(str(pos[1]),str(entry)))
-                if entry.parent_position(pos[1]) is not None:
-                    logging.debug('FC parent is %s' % str(entry.parent_position(pos[1])))
+                # continue in the next outer tree only if we do not drop
+                # "covered" parts and the position path points to a parent-less
+                # position in the subtree.
+                if (entry.parent_position(pos[1]) is not None or not
+                        self._interpret_covered):
                     return None
-                if not self._interpret_covered:
-                    return None
+
+        # return the first child of the outmost tree
         outerchild = tree.first_child_position(pos[0])
         if outerchild is not None:
                 childpos = outerchild,
-        return self.sanitize_position(childpos, tree)
+        return childpos
 
     def last_child_position(self, pos, outmost_only=False):
-        return self._last_child_position(self._tree, pos, outmost_only)
+        childpos = self._last_child_position(self._tree, pos, outmost_only)
+        return self._sanitize_position(childpos, self._tree)
 
     def _last_child_position(self, tree, pos, outmost_only=False):
         childpos = None
+        # get content at first path element in outmost tree
         entry = tree[pos[0]]
         if isinstance(entry, Tree) and not outmost_only:
+            # this points to a tree and we don't check the outmost tree only
+            # recur: get last child in the subtree for remaining path
             subchild = self._last_child_position(entry, pos[1:])
             if subchild is not None:
+                # found a childposition, re-append the path up to this subtree
                 childpos = (pos[0],) + subchild
                 return childpos
-            elif len(pos)>1:
-                if entry.parent_position(pos[1]) is not None:
+            else:
+                # continue in the next outer tree only if we do not drop
+                # "covered" parts and the position path points to a parent-less
+                # position in the subtree.
+                if (entry.parent_position(pos[1]) is not None or not
+                        self._interpret_covered):
                     return None
-                if not self._interpret_covered:
-                    return None
+
+        # return the last child of the outmost tree
         outerchild = tree.last_child_position(pos[0])
         if outerchild is not None:
                 childpos = outerchild,
-        return self.sanitize_position(childpos, tree)
+        return childpos
 
     def _next_sibling_position(self, tree, pos):
-        logging.debug('next sib pos: %s %s'% (tree,str(pos)))
+        logging.debug('next sib pos: %s %s' % (tree, str(pos)))
         candidate = None
         if len(pos) > 1:
+            # if position path does not point to position in outmost tree,
+            # first get the subtree as pointed out by first dimension, recur
+            # and check if some inner tree already returns a sibling
             subtree = tree[pos[0]]
             subsibling_pos = self._next_sibling_position(subtree, pos[1:])
-            subparent = subtree.parent_position(pos[1])
             if subsibling_pos is not None:
+                # we found our sibling, prepend the path up to the subtree
                 candidate = pos[:1] + subsibling_pos
-            elif subparent is None:
-                # go to outer tree sibline if inner pos has depth 0
-                next_sib = tree.next_sibling_position(pos[0])
-                if next_sib is not None:
-                    candidate = next_sib,
-                    entry = tree[next_sib]
-                    if isinstance(entry, Tree):
-                        candidate = candidate + (entry.root,)
-            elif subtree.parent_position(subparent) is None and self._interpret_covered:
-                # and we respect "covered" stuff
-                # TODO FIS THIS: must work recursively
-                next_sib = tree.first_child_position(pos[0])
-                if next_sib is not None:
-                    candidate = next_sib,
-                    entry = tree[next_sib]
-                    if isinstance(entry, Tree):
-                        candidate = candidate + (entry.root,)
+            else:
+                subparent = subtree.parent_position(pos[1])
+                if subparent is None:
+                    # go to outer tree sibline if inner pos has depth 0
+                    next_sib = tree.next_sibling_position(pos[0])
+                    if next_sib is not None:
+                        candidate = next_sib,
+                elif subtree.parent_position(subparent) is None and self._interpret_covered:
+                    # and we respect "covered" stuff
+                    # TODO FIS THIS: must work recursively
+                    next_sib = tree.first_child_position(pos[0])
+                    if next_sib is not None:
+                        candidate = next_sib,
 
         else:
             next_sib = tree.next_sibling_position(pos[0])
             if next_sib is not None:
                 candidate = next_sib,
-        if candidate is not None:
-            entry = self._lookup_entry(tree, candidate)
-            if isinstance(entry, Tree):
-                candidate = candidate + (entry.root,)
         return candidate
 
     def next_sibling_position(self, pos):
-        return self._next_sibling_position(self._tree, pos)
+        candidate = self._next_sibling_position(self._tree, pos)
+        return self._sanitize_position(candidate, self._tree)
 
     def _prev_sibling_position(self, tree, pos):
-        logging.debug('prev sib pos: %s %s' % (tree,str(pos)))
+        logging.debug('prev sib pos: %s %s' % (tree, str(pos)))
         candidate = None
         if len(pos) > 1:
             subtree = tree[pos[0]]
@@ -283,37 +305,21 @@ class NestedTree(Tree):
                 prev_sib = tree.prev_sibling_position(pos[0])
                 if prev_sib is not None:
                     candidate = prev_sib,
-                    entry = tree[prev_sib]
-                    if isinstance(entry, Tree):
-                        candidate = candidate + (entry.root,) ## last sib of root!
                 elif self._interpret_covered:
-                # TODO FIS THIS: must work recursively
-                    logging.debug('IC')
                     parent_pos = tree.parent_position(pos[0])
-                    logging.debug('parent_pos: %s' % str(parent_pos))
                     if parent_pos is not None:
                         parent = tree[parent_pos]
-                        logging.debug('parent: %s' % str(parent))
 
                         if isinstance(parent, Tree):
                             sib = parent.last_child_position(parent.root)
-                            logging.debug('last child: %s' % str(sib))
                             if sib is not None:
                                 candidate = (parent_pos,) + (sib,)
-                                entry = parent[sib]
-                                logging.debug('entry: %s' % str(entry))
-                                if isinstance(entry, Tree):
-                                    candidate = candidate + (entry.root,)
-                            logging.debug('pp of %s: %s' % (str(pos),str(candidate)))
         else:
             prev_sib = tree.prev_sibling_position(pos[0])
             if prev_sib is not None:
                 candidate = prev_sib,
-            if candidate is not None:
-                entry = self._lookup_entry(tree, candidate)
-                if isinstance(entry, Tree):
-                    candidate = candidate + (entry.root,)
         return candidate
 
     def prev_sibling_position(self, pos):
-        return self._prev_sibling_position(self._tree, pos)
+        candidate = self._prev_sibling_position(self._tree, pos)
+        return self._sanitize_position(candidate, self._tree)
