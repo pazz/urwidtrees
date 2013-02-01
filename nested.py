@@ -25,8 +25,21 @@ class NestedTree(Tree):
             root = root + (rcontent.root,)
         return root
 
-    def __init__(self, tree):
+    def sanitize_position(self, pos, tree=None):
+        """
+        Ensure a position tuple until the result does not
+        point to a :class:`Tree` any more.
+        """
+        if pos is not None:
+            tree = tree or self._tree
+            entry = self._lookup_entry(tree, pos)
+            if isinstance(entry, Tree):
+                pos = pos + self.sanitize_position((entry.root,), tree=entry)
+        return pos
+
+    def __init__(self, tree, interpret_covered=False):
         self._tree = tree
+        self._interpret_covered = interpret_covered
 
     def _lookup_entry(self, tree, pos):
         if len(pos) == 0:
@@ -169,33 +182,33 @@ class NestedTree(Tree):
             outer_parent = self._tree.parent_position(pos[0])
             if outer_parent is not None:
                 candidate_pos = outer_parent,
-                entry = self._tree[outer_parent]
-                if isinstance(entry, Tree):
-                    candidate_pos = candidate_pos + (entry.root,)
-        return candidate_pos
+        return self.sanitize_position(candidate_pos)
 
     def first_child_position(self, pos, outmost_only=False):
         return self._first_child_position(self._tree, pos, outmost_only)
 
     def _first_child_position(self, tree, pos, outmost_only=False):
+        logging.debug('first child pos: %s %s' %(tree,str(pos)))
         childpos = None
         entry = tree[pos[0]]
         if isinstance(entry, Tree) and not outmost_only:
+            #logging.debug('FC pos is tree: %s' %(str(pos)))
             subchild = self._first_child_position(entry, pos[1:])
+            #logging.debug('FC with child pos: %s' %(str(subchild)))
             if subchild is not None:
                 childpos = (pos[0],) + subchild
                 return childpos
-            elif entry.parent_position(pos[1]) is not None:
-                return None
-
-        child = tree.first_child_position(pos[0])
-        if child is not None:
-            entry = tree[child]
-            if isinstance(entry, Tree):
-                childpos = (child,) + (entry.root,)
             else:
-                childpos = child,
-        return childpos
+                #logging.debug('FC checking parent of %s in %s' %(str(pos[1]),str(entry)))
+                if entry.parent_position(pos[1]) is not None:
+                    logging.debug('FC parent is %s' % str(entry.parent_position(pos[1])))
+                    return None
+                if not self._interpret_covered:
+                    return None
+        outerchild = tree.first_child_position(pos[0])
+        if outerchild is not None:
+                childpos = outerchild,
+        return self.sanitize_position(childpos, tree)
 
     def last_child_position(self, pos, outmost_only=False):
         return self._last_child_position(self._tree, pos, outmost_only)
@@ -211,23 +224,23 @@ class NestedTree(Tree):
             elif len(pos)>1:
                 if entry.parent_position(pos[1]) is not None:
                     return None
-        child = tree.last_child_position(pos[0])
-        if child is not None:
-            entry = tree[child]
-            if isinstance(entry, Tree):
-                childpos = (child,) + (entry.root,)
-            else:
-                childpos = child,
-        return childpos
+                if not self._interpret_covered:
+                    return None
+        outerchild = tree.last_child_position(pos[0])
+        if outerchild is not None:
+                childpos = outerchild,
+        return self.sanitize_position(childpos, tree)
 
     def _next_sibling_position(self, tree, pos):
+        logging.debug('next sib pos: %s %s'% (tree,str(pos)))
         candidate = None
         if len(pos) > 1:
             subtree = tree[pos[0]]
             subsibling_pos = self._next_sibling_position(subtree, pos[1:])
+            subparent = subtree.parent_position(pos[1])
             if subsibling_pos is not None:
                 candidate = pos[:1] + subsibling_pos
-            elif subtree.parent_position(pos[1]) is None:
+            elif subparent is None:
                 # go to outer tree sibline if inner pos has depth 0
                 next_sib = tree.next_sibling_position(pos[0])
                 if next_sib is not None:
@@ -235,6 +248,16 @@ class NestedTree(Tree):
                     entry = tree[next_sib]
                     if isinstance(entry, Tree):
                         candidate = candidate + (entry.root,)
+            elif subtree.parent_position(subparent) is None and self._interpret_covered:
+                # and we respect "covered" stuff
+                # TODO FIS THIS: must work recursively
+                next_sib = tree.first_child_position(pos[0])
+                if next_sib is not None:
+                    candidate = next_sib,
+                    entry = tree[next_sib]
+                    if isinstance(entry, Tree):
+                        candidate = candidate + (entry.root,)
+
         else:
             next_sib = tree.next_sibling_position(pos[0])
             if next_sib is not None:
@@ -249,6 +272,7 @@ class NestedTree(Tree):
         return self._next_sibling_position(self._tree, pos)
 
     def _prev_sibling_position(self, tree, pos):
+        logging.debug('prev sib pos: %s %s' % (tree,str(pos)))
         candidate = None
         if len(pos) > 1:
             subtree = tree[pos[0]]
@@ -261,7 +285,26 @@ class NestedTree(Tree):
                     candidate = prev_sib,
                     entry = tree[prev_sib]
                     if isinstance(entry, Tree):
-                        candidate = candidate + (entry.root,)
+                        candidate = candidate + (entry.root,) ## last sib of root!
+                elif self._interpret_covered:
+                # TODO FIS THIS: must work recursively
+                    logging.debug('IC')
+                    parent_pos = tree.parent_position(pos[0])
+                    logging.debug('parent_pos: %s' % str(parent_pos))
+                    if parent_pos is not None:
+                        parent = tree[parent_pos]
+                        logging.debug('parent: %s' % str(parent))
+
+                        if isinstance(parent, Tree):
+                            sib = parent.last_child_position(parent.root)
+                            logging.debug('last child: %s' % str(sib))
+                            if sib is not None:
+                                candidate = (parent_pos,) + (sib,)
+                                entry = parent[sib]
+                                logging.debug('entry: %s' % str(entry))
+                                if isinstance(entry, Tree):
+                                    candidate = candidate + (entry.root,)
+                            logging.debug('pp of %s: %s' % (str(pos),str(candidate)))
         else:
             prev_sib = tree.prev_sibling_position(pos[0])
             if prev_sib is not None:
