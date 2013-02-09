@@ -241,22 +241,25 @@ class NestedTree(Tree):
         entry = tree[pos[0]]
         if isinstance(entry, Tree) and not outmost_only and len(pos) > 1:
             # this points to a tree and we don't check the outmost tree only
+
+            # get last child in the outmost tree if we do not drop "covered"
+            # parts and the position path points to a root of the subtree.
             if self._interpret_covered:
                 if entry.parent_position(pos[1]) is None:
                     # return the last child of the outmost tree
                     outerchild = tree.last_child_position(pos[0])
                     if outerchild is not None:
                         childpos = outerchild,
+
+            # continue as if we have not found anything yet
             if childpos is None:
                 # recur: get last child in the subtree for remaining path
                 subchild = self._last_child_position(entry, pos[1:])
                 if subchild is not None:
                     # found a childposition, re-append the path up to this subtree
                     childpos = (pos[0],) + subchild
-                    # continue in the next outer tree only if we do not drop
-                    # "covered" parts and the position path points to a parent-less
-                    # position in the subtree.
         else:
+            # outmost position element does not point to a tree:
             # return the last child of the outmost tree
             outerchild = tree.last_child_position(pos[0])
             if outerchild is not None:
@@ -307,7 +310,6 @@ class NestedTree(Tree):
         return self._sanitize_position(candidate, self._tree)
 
     def _prev_sibling_position(self, tree, pos):
-        logging.debug('prev sib pos: %s %s' % (tree, str(pos)))
         candidate = None
         if len(pos) > 1:
             # if position path does not point to position in outmost tree,
@@ -330,26 +332,17 @@ class NestedTree(Tree):
             # my position could be "hidden" by being child of a
             # position pointing to a Tree object (which is then unfolded).
             if self._interpret_covered:
-                # we respect "covered" stuff
-                # get (possibly nested) first child in outer tree
+                # we respect "covered" stuff:
+                # if parent is Tree, return last child of its (last) root
                 parent_pos = self._parent_position(tree, pos)
                 if parent_pos is not None:
-                    if len(parent_pos) > 1:
-                    # if <= 1 then we are in outmost tree, so this position
-                    # cannot contain a Tree wich hides stuff..
-                        outer = parent_pos[:-1]
-                        inner = parent_pos[-1]
-                        parent = self._lookup_entry(self._tree, parent_pos)
-
-                    # if tree at parent pos is not tree at pos, go
-                        #if parent_pos[:-1] != pos[:-1]:
-                        #or len(pos) != len(parent_pos):
-                        if isinstance(parent, Tree):
-                            #if parent.root == inner:
-                                sib = parent.last_sibling_position(parent.root)
-                                candidate = parent.last_child_position(sib)
-                                candidate = parent_pos + (candidate,)
+                    parent = self._lookup_entry(self._tree, parent_pos)
+                    if isinstance(parent, Tree):
+                        sib = parent.last_sibling_position(parent.root)
+                        candidate = parent.last_child_position(sib)
+                        candidate = parent_pos + (candidate,)
         else:
+            # pos points to position in outmost tree
             prev_sib = tree.prev_sibling_position(pos[0])
             if prev_sib is not None:
                 candidate = prev_sib,
