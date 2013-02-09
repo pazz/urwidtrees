@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # add some Arrow decoration
     outertree = ArrowTree(outertree)
     # wrap the whole thing into a Nested Tree
-    outertree = NestedTree(outertree)
+    outertree = NestedTree(outertree, True)
 
     # put it into a treebox and run
     treebox = TreeBox(outertree)
