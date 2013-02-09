@@ -53,13 +53,6 @@ class Tree(object):
                 candidate = self._next_of_kin(parent)
         return candidate
 
-    def _last_decendant_position(self, pos):
-        """looks up the last node in the subtree starting a pos."""
-        candidate = pos
-        last_child = self.last_child_position(pos)
-        if last_child is not None:
-            candidate = self._last_decendant_position(last_child)
-        return candidate
 
     def _last_in_direction(self, starting_pos, direction):
         """
@@ -124,7 +117,7 @@ class Tree(object):
         if pos is not None:
             prevsib = self.prev_sibling_position(pos)  # is None if first
             if prevsib is not None:
-                candidate = self._last_decendant_position(prevsib)
+                candidate = self.last_decendant(prevsib)
             else:
                 parent = self.parent_position(pos)
                 if parent is not None:
