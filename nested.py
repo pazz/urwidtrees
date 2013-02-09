@@ -340,7 +340,8 @@ class NestedTree(Tree):
                     if isinstance(parent, Tree):
                         sib = parent.last_sibling_position(parent.root)
                         candidate = parent.last_child_position(sib)
-                        candidate = parent_pos + (candidate,)
+                        if candidate is not None:
+                            candidate = parent_pos + (candidate,)
         else:
             # pos points to position in outmost tree
             prev_sib = tree.prev_sibling_position(pos[0])
