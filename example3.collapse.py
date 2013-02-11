@@ -3,7 +3,7 @@
 # This file is released under the GNU GPL, version 3 or a later revision.
 
 from example1 import construct_example_tree, palette  # example data
-from decoration import CollapsibleIndentedTree # for Decoration
+from decoration import CollapsibleIndentedTree  # for Decoration
 from widgets import TreeBox
 import urwid
 
@@ -12,9 +12,9 @@ if __name__ == "__main__":
     stree = construct_example_tree()
 
     # Use (subclasses of) the wrapper decoration.CollapsibleTree to construct a
-    # tree where collapsible subtrees. Apart from the original tree, these take a
-    # callable `is_collapsed` that defines initial collapsed-status if a given
-    # position.
+    # tree where collapsible subtrees. Apart from the original tree, these take
+    # a callable `is_collapsed` that defines initial collapsed-status if a
+    # given position.
 
     # We want all grandchildren collapsed initially
     if_grandchild = lambda pos: stree.depth(pos) > 1

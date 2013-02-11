@@ -7,13 +7,14 @@ from decoration import DecoratedTree, CollapseMixin
 
 class NestedTree(Tree):
     """
-    A Tree that wraps around Trees that may contain list walkers or other trees.
-    The wrapped tree may contain normal widgets as well. List walkers / subtree
-    contents will be expanded into the tree presented by this wrapper.
+    A Tree that wraps around Trees that may contain list walkers or other
+    trees.  The wrapped tree may contain normal widgets as well. List walkers
+    and subtree contents will be expanded into the tree presented by this
+    wrapper.
 
-    This wrapper's positions are tuples of positions of the original and subtrees:
-    For example, `(X,Y,Z)` points at position Z in tree/list at position Y in
-    tree/list at position X in the original tree.
+    This wrapper's positions are tuples of positions of the original and
+    subtrees: For example, `(X,Y,Z)` points at position Z in tree/list at
+    position Y in tree/list at position X in the original tree.
 
     NestedTree transparently behaves like a collapsible DecoratedTree.
     """
@@ -172,7 +173,7 @@ class NestedTree(Tree):
     ################################################
     def parent_position(self, pos):
         candidate_pos = self._parent_position(self._tree, pos)
-        # return sanitized path (makes sure it points to content, not a subtree)
+        # return sanitized path (ensure it points to content, not a subtree)
         return self._sanitize_position(candidate_pos)
 
     def _parent_position(self, tree, pos):
@@ -185,8 +186,8 @@ class NestedTree(Tree):
             least_pos = pos[-1]
             subparent_pos = subtree.parent_position(least_pos)
             if subparent_pos is not None:
-                # in case there is one, we are done, the position we look for is
-                # the path up to the subtree plus the local parent position.
+                # in case there is one, we are done, the position we look for
+                # is the path up to the subtree plus the local parent position.
                 candidate_pos = subtree_pos + (subparent_pos,)
             else:
                 # otherwise we recur and look for subtree's parent in the next
@@ -197,7 +198,7 @@ class NestedTree(Tree):
             # the outmost tree
             outer_parent = self._tree.parent_position(pos[0])
             if outer_parent is not None:
-                # the result needs to be a valid position (tuple of local positions)
+                # result needs to be valid position (tuple of local positions)
                 candidate_pos = outer_parent,
         return candidate_pos
 
@@ -256,7 +257,7 @@ class NestedTree(Tree):
                 # recur: get last child in the subtree for remaining path
                 subchild = self._last_child_position(entry, pos[1:])
                 if subchild is not None:
-                    # found a childposition, re-append the path up to this subtree
+                    # found a childposition, re-prepend path up to this subtree
                     childpos = (pos[0],) + subchild
         else:
             # outmost position element does not point to a tree:
@@ -292,7 +293,8 @@ class NestedTree(Tree):
                 # of its parent in the outer tree can be seen as candidate for
                 # this position next sibling. Those live in the shadow of the
                 # inner tree and are hidden unless requested otherwise
-                elif subtree.parent_position(subparent) is None and self._interpret_covered:
+                elif subtree.parent_position(subparent) is None and \
+                        self._interpret_covered:
                     # we respect "covered" stuff and inner position has depth 1
                     # get (possibly nested) first child in outer tree
                     candidate = self._first_child_position(tree, pos[:1])

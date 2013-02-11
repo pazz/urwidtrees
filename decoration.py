@@ -67,8 +67,8 @@ class CollapseMixin(object):
     This works by overwriting
     :meth:`[first|last]_child_position <first_child_position>`, forcing them to
     return `None` if the given position is considered collapsed. We use a
-    (given) callable `is_collapsed` that accepts positions and returns a boolean to
-    determine which node is considered collapsed.
+    (given) callable `is_collapsed` that accepts positions and returns a
+    boolean to determine which node is considered collapsed.
     """
     def __init__(self, is_collapsed=lambda pos: False,
                  **kwargs):
@@ -235,7 +235,8 @@ class CollapsibleIndentedTree(CollapseIconMixin, IndentedTree):
         :type walker: Tree
         :param indent: indentation width
         :type indent: int
-        :param icon_offset: distance from icon to the eginning of the tree node.
+        :param icon_offset: distance from icon to the eginning of the tree
+                            node.
         :type icon_offset: int
         """
         self._icon_offset = icon_offset
@@ -273,8 +274,8 @@ class CollapsibleIndentedTree(CollapseIconMixin, IndentedTree):
         if not is_leaf:
             if icon is not None:
                 # space to the left
-                cols.append(
-                    (available_space - firstindent_width, urwid.SolidFill(' ')))
+                cols.append((available_space - firstindent_width,
+                             urwid.SolidFill(' ')))
                 # icon
                 icon_pile = urwid.Pile([('pack', icon), void])
                 cols.append((iwidth, icon_pile))
@@ -339,7 +340,8 @@ class ArrowTree(IndentedTree):
             grandparent = self._tree.parent_position(parent)
             if self._indent > 0 and grandparent is not None:
                 parent_sib = self._tree.next_sibling_position(parent)
-                draw_vbar = parent_sib is not None and self._arrow_vbar_char is not None
+                draw_vbar = parent_sib is not None and \
+                        self._arrow_vbar_char is not None
                 space_width = self._indent - 1 * (
                     draw_vbar) - self._childbar_offset
                 if space_width > 0:
@@ -488,7 +490,8 @@ class CollapsibleArrowTree(CollapseIconMixin, ArrowTree):
         overall_width = self._icon_offset
 
         if self._icon_offset > 0:
-            # how often do we repeat the hbar_char until width icon_offset is reached
+            # how often we repeat the hbar_char until width icon_offset is
+            # reached
             hbar_char_count = len(self._arrow_hbar_char) / self._icon_offset
             barw = urwid.Text(self._arrow_hbar_char * hbar_char_count)
             bar = urwid.AttrMap(barw, self._arrow_hbar_att or self._arrow_att)
