@@ -37,7 +37,7 @@ class DecoratedTree(Tree):
         that is *part* of the (multi-line) content at this position, but not
         the first part. This allows to omit incoming arrow heads for example.
         """
-        return self._tree[pos]
+        return widget
 
     # pass on everything else to the original tree.
 
