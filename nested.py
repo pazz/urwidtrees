@@ -347,6 +347,11 @@ class NestedTree(Tree):
             prev_sib = tree.prev_sibling_position(pos[0])
             if prev_sib is not None:
                 candidate = prev_sib,
+        # In case our new candidate points to a Tree, pick its last root node
+        if candidate is not None:
+            entry = self._lookup_entry(self._tree, candidate)
+            if isinstance(entry, Tree):
+                candidate = (candidate) + (entry.last_sibling_position(entry.root),)
         return candidate
 
     def prev_sibling_position(self, pos):
