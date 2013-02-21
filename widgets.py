@@ -91,12 +91,13 @@ class TreeListWalker(urwid.ListWalker):
 class TreeBox(WidgetWrap):
     """
     A widget that displays a given :class:`Tree`.
-    This is essentially a :class:`ListBox` with the ability to move the focus based on
-    directions in the Tree and to collapse/expand subtrees if possible.
+    This is essentially a :class:`ListBox` with the ability to move the focus
+    based on directions in the Tree and to collapse/expand subtrees if
+    possible.
 
-    TreeBox interprets `left/right` as well as `page up/`page down` to move the focus
-    to parent/first child and next/previous sibling respectively. All other
-    keys are passed to the underlying ListBox.
+    TreeBox interprets `left/right` as well as `page up/`page down` to move the
+    focus to parent/first child and next/previous sibling respectively. All
+    other keys are passed to the underlying ListBox.
     """
 
     def __init__(self, tree, focus=None):

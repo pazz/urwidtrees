@@ -2,11 +2,12 @@
 # Copyright (C) 2013  Patrick Totzke <patricktotzke@gmail.com>
 # This file is released under the GNU GPL, version 3 or a later revision.
 
-from example1 import palette, construct_example_tree, FocusableText  # example data
+from example1 import palette, construct_example_tree  # example data
+from example1 import FocusableText  # Selectable Text used for nodes
 from widgets import TreeBox
 from tree import SimpleTree
 from nested import NestedTree
-from decoration import ArrowTree, CollapsibleArrowTree
+from decoration import ArrowTree, CollapsibleArrowTree  # decoration
 import urwid
 
 
@@ -32,14 +33,19 @@ if __name__ == "__main__":
                   ]
                   ),
                  (anotherinnertree,
+                  # middletree defines a childnode here. This is usually
+                  # covered by the tree 'anotherinnertree', unless the
+                  # interepreting NestedTree's constructor gets parameter
+                  # interpret_covered=True..
                   [
-                      (FocusableText('I will never be seen!'), None),
+                      (FocusableText('XXX I\'m invisible!'), None),
 
                   ]),
              ]
              )
         ]
-    )  # end SimpleTree constructor
+    )  # end SimpleTree constructor for middletree
+    # use customized arrow decoration for middle tree
     middletree = ArrowTree(middletree,
                            arrow_hbar_char=u'\u2550',
                            arrow_vbar_char=u'\u2551',
@@ -47,6 +53,7 @@ if __name__ == "__main__":
                            arrow_connector_tchar=u'\u2560',
                            arrow_connector_lchar=u'\u255A')
 
+    # define outmost tree
     outertree = SimpleTree(
         [
             (FocusableText('Outer ROOT'),
@@ -62,7 +69,10 @@ if __name__ == "__main__":
     # add some Arrow decoration
     outertree = ArrowTree(outertree)
     # wrap the whole thing into a Nested Tree
-    outertree = NestedTree(outertree, True)
+    outertree = NestedTree(outertree,
+                           # show covered nodes like  XXX
+                           interpret_covered=False
+                           )
 
     # put it into a treebox and run
     treebox = TreeBox(outertree)

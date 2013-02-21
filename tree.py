@@ -43,7 +43,8 @@ class Tree(object):
 
     def _next_of_kin(self, pos):
         """
-        looks up the next sibling of the closest ancestor with not-None next siblings.
+        looks up the next sibling of the closest ancestor with not-None next
+        siblings.
         """
         candidate = None
         parent = self.parent_position(pos)
@@ -52,7 +53,6 @@ class Tree(object):
             if candidate is None:
                 candidate = self._next_of_kin(parent)
         return candidate
-
 
     def _last_in_direction(self, starting_pos, direction):
         """
@@ -83,8 +83,8 @@ class Tree(object):
     def first_ancestor(self, pos):
         """
         position of pos's ancestor with depth 0. Usually, this should return
-        the root node, but a :class:`Tree` might represent a forrest - have multiple
-        nodes without parent.
+        the root node, but a :class:`Tree` might represent a forrest - have
+        multiple nodes without parent.
         """
         return self._last_in_direction(pos, self.parent_position)
 
@@ -172,10 +172,10 @@ class Tree(object):
 
 class SimpleTree(Tree):
     """
-    Walks on a given fixed acyclic structure given as a list of nodes;
-    every node is a tuple `(content, children)`, where `content` is a `urwid.Widget`
-    to be displayed at that position and `children` is either `None` or a list of
-    nodes.
+    Walks on a given fixed acyclic structure given as a list of nodes; every
+    node is a tuple `(content, children)`, where `content` is a `urwid.Widget`
+    to be displayed at that position and `children` is either `None` or a list
+    of nodes.
 
     Positions are lists of integers determining a path from the root node with
     position `(0,)`.
@@ -199,7 +199,10 @@ class SimpleTree(Tree):
         return subtree
 
     def _get_node(self, treelist, pos):
-        """look up widget at `pos` of `treelist`; default to None if nonexistent."""
+        """
+        look up widget at `pos` of `treelist`; default to None if
+        nonexistent.
+        """
         node = None
         if pos is not None:
             subtree = self._get_substructure(treelist, pos)
