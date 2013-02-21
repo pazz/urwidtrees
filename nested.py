@@ -1,7 +1,6 @@
 # Copyright (C) 2013  Patrick Totzke <patricktotzke@gmail.com>
 # This file is released under the GNU GPL, version 3 or a later revision.
 from tree import Tree
-import logging
 from decoration import DecoratedTree, CollapseMixin
 
 
@@ -68,7 +67,6 @@ class NestedTree(Tree):
 
     # DecoratedTree API
     def _get_decorated_entry(self, tree, pos, widget=None, is_first=True):
-        #logging.debug('DECORATED: %s %s %s' % (tree,str(pos), widget))
         entry = tree[pos[0]]
         if len(pos) > 1 and isinstance(entry, Tree):
             subtree = entry
@@ -268,7 +266,6 @@ class NestedTree(Tree):
         return childpos
 
     def _next_sibling_position(self, tree, pos):
-        logging.debug('next sib pos: %s %s' % (tree, str(pos)))
         candidate = None
         if len(pos) > 1:
             # if position path does not point to position in outmost tree,
@@ -351,7 +348,7 @@ class NestedTree(Tree):
                 candidate = prev_sib,
         # In case our new candidate points to a Tree, pick its last root node
         if candidate is not None:
-            entry = self._lookup_entry(self._tree, candidate)
+            entry = self._lookup_entry(tree, candidate)
             if isinstance(entry, Tree):
                 candidate = (candidate) + (entry.last_sibling_position(entry.root),)
         return candidate
