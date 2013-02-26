@@ -341,9 +341,8 @@ class ArrowTree(IndentedTree):
             if self._indent > 0 and grandparent is not None:
                 parent_sib = self._tree.next_sibling_position(parent)
                 draw_vbar = parent_sib is not None and \
-                        self._arrow_vbar_char is not None
-                space_width = self._indent - 1 * (
-                    draw_vbar) - self._childbar_offset
+                    self._arrow_vbar_char is not None
+                space_width = self._indent - 1 * (draw_vbar) - self._childbar_offset
                 if space_width > 0:
                     void = urwid.AttrMap(urwid.SolidFill(' '), self._arrow_att)
                     acc.insert(0, ((space_width, void)))
