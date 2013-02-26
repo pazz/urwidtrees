@@ -9,9 +9,11 @@ from tree import SimpleTree
 from nested import NestedTree
 from decoration import ArrowTree, CollapsibleArrowTree  # decoration
 import urwid
+import logging
 
 
 if __name__ == "__main__":
+    #logging.basicConfig(filename='example.log',level=logging.DEBUG)
     # Take some Arrow decorated Tree that we later stick inside another tree.
     innertree = ArrowTree(construct_example_tree())
     # Some collapsible, arrow decorated tree with extra indent

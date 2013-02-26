@@ -226,3 +226,17 @@ class TreeBox(WidgetWrap):
         sib = self._tree.prev_sibling_position(focuspos)
         if sib is not None:
             self.set_focus(sib)
+
+    def focus_next(self):
+        """move focus to next position (DFO)"""
+        w, focuspos = self.get_focus()
+        next = self._tree.next_position(focuspos)
+        if next is not None:
+            self.set_focus(next)
+
+    def focus_prev(self):
+        """move focus to previous position (DFO)"""
+        w, focuspos = self.get_focus()
+        prev = self._tree.prev_position(focuspos)
+        if prev is not None:
+            self.set_focus(prev)
