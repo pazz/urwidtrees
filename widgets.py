@@ -121,6 +121,7 @@ class TreeBox(WidgetWrap):
         return self._outer_list.set_focus(pos)
 
     def refresh(self):
+        self._walker.clear_cache()
         signals.emit_signal(self._walker, "modified")
 
     def keypress(self, size, key):
