@@ -7,6 +7,10 @@ from decoration import CollapsibleIndentedTree  # for Decoration
 from widgets import TreeBox
 import urwid
 
+def unhandled_input(k):
+    #exit on q
+    if k in ['q', 'Q']: raise urwid.ExitMainLoop()
+
 if __name__ == "__main__":
     # get some SimpleTree
     stree = construct_example_tree()
@@ -36,6 +40,9 @@ if __name__ == "__main__":
 
     # put the tree into a treebox
     treebox = TreeBox(tree)
-
     rootwidget = urwid.AttrMap(treebox, 'body')
-    urwid.MainLoop(rootwidget, palette).run()  # go
+    #add a text footer
+    footer = urwid.AttrMap(urwid.Text('Q to quit'), 'focus')
+    #enclose all in a frame
+    urwid.MainLoop(urwid.Frame(rootwidget, footer=footer), palette, unhandled_input = unhandled_input).run() # go
+
