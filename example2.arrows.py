@@ -7,6 +7,10 @@ from decoration import ArrowTree  # for Decoration
 from widgets import TreeBox
 import urwid
 
+def unhandled_input(k):
+    #exit on q
+    if k in ['q', 'Q']: raise urwid.ExitMainLoop()
+
 if __name__ == "__main__":
     # get example tree
     stree = construct_example_tree()
@@ -19,10 +23,6 @@ if __name__ == "__main__":
                       # arrow_connector_tchar=u'\u2560',
                       # arrow_connector_lchar=u'\u255A',
                       )
-
-def unhandled_input(k):
-    #exit on q
-    if k in ['q', 'Q']: raise urwid.ExitMainLoop()
 
     # put the into a treebox
     treebox = TreeBox(atree)
