@@ -69,6 +69,10 @@ def construct_example_tree(selectable_nodes=True, children=2):
 
     # stick out test tree into a SimpleTree and return
     return SimpleTree(forrest)
+    
+def unhandled_input(k):
+    #exit on q
+    if k in ['q', 'Q']: raise urwid.ExitMainLoop()
 
 if __name__ == "__main__":
     # get example tree
@@ -79,4 +83,7 @@ if __name__ == "__main__":
 
     # add some decoration
     rootwidget = urwid.AttrMap(treebox, 'body')
-    urwid.MainLoop(rootwidget, palette).run()  # go
+    #add a text footer
+    footer = urwid.AttrMap(urwid.Text('Q to quit'), 'focus')
+    #enclose all in a frame
+    urwid.MainLoop(urwid.Frame(rootwidget, footer=footer), palette).run()  # go
