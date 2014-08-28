@@ -131,4 +131,4 @@ if __name__ == "__main__":
     #add a text footer
     footer = urwid.AttrMap(urwid.Text('Q to quit'), 'focus')
     #enclose all in a frame
-    urwid.MainLoop(urwid.Frame(rootwidget, footer=footer), palette, unhandled_input = unhandled_input).run() # go
+    urwid.MainLoop(urwid.Frame(root_widget, footer=footer), palette, unhandled_input = unhandled_input).run() # go
