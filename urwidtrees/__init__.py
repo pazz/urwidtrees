@@ -1,3 +1,12 @@
+__productname__ = 'urwidtrees'
+__version__ = '0.1'
+__copyright__ = "Copyright (C) 2014 Patrick Totzke"
+__author__ = "Patrick Totzke"
+__author_email__ = "patricktotzke@gmail.com"
+__description__ = "Tree widgets for urwid"
+__url__ = "https://github.com/pazz/urwidtrees"
+__license__ = "Licensed under the GNU GPL v3+."
+
 try:
     # lru_cache is part of the stdlib from v3.2 onwards
     import functools.lru_cache as lru_cache
