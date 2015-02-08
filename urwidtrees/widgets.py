@@ -7,7 +7,7 @@ from urwid import WidgetWrap, ListBox
 from urwid import signals
 from .decoration import DecoratedTree, CollapseMixin
 from .nested import NestedTree
-from . import lru_cache
+from .lru_cache import lru_cache
 
 # The following are used to check dynamically if a tree offers sub-APIs
 
