@@ -132,8 +132,8 @@ class CollapseMixin(object):
 
 class CollapseIconMixin(CollapseMixin):
     """
-    Mixin for :classs:`Tree` that allows to allows to collapse subtrees
-    and use an indicator icon in line decorations.
+    Mixin for :classs:`Tree` that allows to collapse subtrees and use
+    an indicator icon in line decorations.
     This Mixin adds the ability to construct collapse-icon for a
     position, indicating its collapse status to :class:`CollapseMixin`.
     """
@@ -358,7 +358,7 @@ class ArrowTree(IndentedTree):
     def _construct_connector(self, pos):
         """
         build widget to be used as "connector" bit between the vertical bar
-        between siblings and their respective horizontab bars leading to the
+        between siblings and their respective horizontal bars leading to the
         arrow tip
         """
         # connector symbol, either L or |- shaped.
