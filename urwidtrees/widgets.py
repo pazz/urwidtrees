@@ -19,10 +19,7 @@ def implementsDecorateAPI(tree):
 
 def implementsCollapseAPI(tree):
     """determines if given tree can collapse positions"""
-    res = False
-    if isinstance(tree, (CollapseMixin, NestedTree)):
-        res = True
-    return res
+    return isinstance(tree, (CollapseMixin, NestedTree))
 
 
 class TreeListWalker(urwid.ListWalker):
