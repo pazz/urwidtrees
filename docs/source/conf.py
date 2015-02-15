@@ -15,6 +15,41 @@
 import sys
 import os
 
+
+###############################
+# readthedocs.org hack,
+# needed to use autodocs on their build-servers:
+# http://readthedocs.org/docs/read-the-docs/en/latest/faq.html?highlight=autodocs#where-do-i-need-to-put-my-docs-for-rtd-to-find-it
+
+class Mock(object):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __call__(self, *args, **kwargs):
+        return Mock()
+
+    @classmethod
+    def __getattr__(self, name):
+        return Mock() if name not in ('__file__', '__path__') else '/dev/null'
+
+class MockModule(object):
+    @classmethod
+    def __getattr__(self, name):
+        return Mock if name not in ('__file__', '__path__') else '/dev/null'
+
+MOCK_MODULES = [ 'urwid', ]
+MOCK_DIRTY = []
+
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+if on_rtd:
+    for mod_name in MOCK_MODULES:
+        sys.modules[mod_name] = MockModule()
+    for mod_name in MOCK_DIRTY:
+        sys.modules[mod_name] = Mock()
+
+##################################
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
