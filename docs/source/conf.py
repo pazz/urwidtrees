@@ -40,13 +40,10 @@ class MockModule(object):
 MOCK_MODULES = [ 'urwid', ]
 MOCK_DIRTY = []
 
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-
-if on_rtd:
-    for mod_name in MOCK_MODULES:
-        sys.modules[mod_name] = MockModule()
-    for mod_name in MOCK_DIRTY:
-        sys.modules[mod_name] = Mock()
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = MockModule()
+for mod_name in MOCK_DIRTY:
+    sys.modules[mod_name] = Mock()
 
 ##################################
 
