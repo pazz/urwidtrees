@@ -7,22 +7,23 @@ from urwid import WidgetWrap, ListBox
 from urwid import signals
 from .decoration import DecoratedTree, CollapseMixin
 from .nested import NestedTree
-from .lru_cache import lru_cache
+try:
+    # lru_cache is part of the stdlib from v3.2 onwards
+    from functools import lru_cache
+except ImportError:
+    # on older versions we use a backport
+    from .lru_cache import lru_cache
 
-# The following are used to check dynamically if a tree offers sub-APIs
 
+# The following functions are used to check dynamically if a tree offers sub-APIs
 
 def implementsDecorateAPI(tree):
     """determines if given tree offers line decoration"""
     return isinstance(tree, (DecoratedTree, NestedTree))
 
-
 def implementsCollapseAPI(tree):
     """determines if given tree can collapse positions"""
-    res = False
-    if isinstance(tree, (CollapseMixin, NestedTree)):
-        res = True
-    return res
+    return isinstance(tree, (CollapseMixin, NestedTree))
 
 
 class TreeListWalker(urwid.ListWalker):
