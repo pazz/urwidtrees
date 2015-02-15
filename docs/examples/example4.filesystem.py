@@ -4,7 +4,7 @@
 
 import urwid
 import os
-from example1 import palette  # example data
+from example1 import palette, unhandled_input  # example data
 from urwidtrees.widgets import TreeBox
 from urwidtrees.tree import Tree
 from urwidtrees.decoration import CollapsibleArrowTree
@@ -104,9 +104,6 @@ class DirectoryTree(Tree):
             candidate = siblings[myindex - 1]
         return candidate
 
-def unhandled_input(k):
-    #exit on q
-    if k in ['q', 'Q']: raise urwid.ExitMainLoop()
 
 if __name__ == "__main__":
     cwd = os.getcwd()  # get current working directory

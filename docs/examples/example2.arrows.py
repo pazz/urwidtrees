@@ -2,14 +2,10 @@
 # Copyright (C) 2013  Patrick Totzke <patricktotzke@gmail.com>
 # This file is released under the GNU GPL, version 3 or a later revision.
 
-from example1 import construct_example_tree, palette  # example data
+from example1 import construct_example_tree, palette, unhandled_input # example data
 from urwidtrees.decoration import ArrowTree  # for Decoration
 from urwidtrees.widgets import TreeBox
 import urwid
-
-def unhandled_input(k):
-    #exit on q
-    if k in ['q', 'Q']: raise urwid.ExitMainLoop()
 
 if __name__ == "__main__":
     # get example tree

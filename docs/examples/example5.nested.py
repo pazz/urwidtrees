@@ -3,17 +3,13 @@
 # This file is released under the GNU GPL, version 3 or a later revision.
 
 from example1 import palette, construct_example_tree  # example data
-from example1 import FocusableText  # Selectable Text used for nodes
+from example1 import FocusableText, unhandled_input  # Selectable Text used for nodes
 from urwidtrees.widgets import TreeBox
 from urwidtrees.tree import SimpleTree
 from urwidtrees.nested import NestedTree
 from urwidtrees.decoration import ArrowTree, CollapsibleArrowTree  # decoration
 import urwid
 import logging
-
-def unhandled_input(k):
-    #exit on q
-    if k in ['q', 'Q']: raise urwid.ExitMainLoop()
 
 if __name__ == "__main__":
     #logging.basicConfig(filename='example.log',level=logging.DEBUG)
