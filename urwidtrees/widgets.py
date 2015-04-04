@@ -76,6 +76,7 @@ class TreeListWalker(urwid.ListWalker):
 
     def set_focus(self, pos):
         self._focus = pos
+        self._modified()
 
     def get_next(self, pos):
         return self._get(self._tree.next_position(pos))
