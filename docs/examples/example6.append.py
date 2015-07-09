@@ -9,12 +9,12 @@ tree_widget = urwidtrees.widgets.TreeBox(
     )
 )
 
-loop = urwid.MainLoop(tree_widget)
-
-
 def exit_on_q(key):
     if key in ['q', 'Q']:
         raise urwid.ExitMainLoop()
+
+loop = urwid.MainLoop(tree_widget, 
+    unhandled_input=exit_on_q)
 
 
 def on_stdout(data):
@@ -27,8 +27,7 @@ def on_stdout(data):
 proc = subprocess.Popen(
     ['ping', '127.0.0.1'],
     stdout=loop.watch_pipe(on_stdout),
-    close_fds=True,
-    unhandled_input=exit_on_q)
+    close_fds=True)
 
 loop.run()
 proc.kill()
