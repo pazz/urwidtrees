@@ -17,7 +17,3 @@ Install
 -------
 
     $ pip install urwidtrees
-    
-Remember you'll also need [urwid].
-
-[urwid]: http://excess.org/urwid/
