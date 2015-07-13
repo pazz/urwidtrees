@@ -13,5 +13,4 @@ setup(name='urwidtrees',
       license=urwidtrees.__copyright__,
       packages=['urwidtrees'],
       requires=['urwid (>=1.1.0)'],
-      provides='urwidtrees',
      )
