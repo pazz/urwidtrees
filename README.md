@@ -1,7 +1,7 @@
 Urwid Tree Container API
 ========================
 
-This is a Widget Container API for the [urwid][urwid] toolkit.
+This is a Widget Container API for the [urwid](http://urwid.org/) toolkit.
 It uses a MVC approach and allows to build trees of widgets.
 Its design goals are
 
