@@ -68,6 +68,8 @@ class NestedTree(Tree):
     # DecoratedTree API
     def _get_decorated_entry(self, tree, pos, widget=None, is_first=True):
         entry = tree[pos[0]]
+        if entry is None:
+            return None
         if len(pos) > 1 and isinstance(entry, Tree):
             subtree = entry
             entry = self._get_decorated_entry(
