@@ -12,8 +12,3 @@ Its design goals are
 
 See the `docs/` subdirectory for autogenetated API docs.
 [![rtfd docs build status](https://readthedocs.org/projects/urwidtrees/badge/)](https://urwidtrees.readthedocs.org/en/latest/)
-
-Install
--------
-
-    $ pip install urwidtrees
