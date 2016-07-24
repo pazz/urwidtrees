@@ -3,7 +3,7 @@ from distutils.core import setup
 
 
 __productname__ = 'urwidtrees'
-__version__ = '1.0.2k1'
+__version__ = '1.0.3'
 __copyright__ = "Copyright (C) 2015 Patrick Totzke"
 __author__ = "Patrick Totzke"
 __author_email__ = "patricktotzke@gmail.com"
