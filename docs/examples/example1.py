@@ -47,12 +47,12 @@ def construct_example_simpletree_structure(selectable_nodes=True, children=3):
     # define some children
     c = g = gg = 0  # counter
     for i in range(children):
-        subtree = (Text('Child %d' % c), [])
+        subtree = (Text('Child {0:d}'.format(c)), [])
         # and grandchildren..
         for j in range(children):
-            subsubtree = (Text('Grandchild %d' % g), [])
+            subsubtree = (Text('Grandchild {0:d}'.format(g)), [])
             for k in range(children):
-                leaf = (Text('Grand Grandchild %d' % gg), None)
+                leaf = (Text('Grand Grandchild {0:d}'.format(gg)), None)
                 subsubtree[1].append(leaf)
                 gg += 1  # inc grand-grandchild counter
             subtree[1].append(subsubtree)
