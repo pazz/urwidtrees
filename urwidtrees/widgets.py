@@ -58,7 +58,7 @@ class TreeListWalker(urwid.ListWalker):
 
     def clear_cache(self):
         """removes all cached lines"""
-        self.__getitem__().cache_clear()
+        self.__getitem__.cache_clear()
 
     def _get(self, pos):
         """looks up widget for given position; handling invalid arguments"""
