@@ -2,9 +2,9 @@
 # This file is released under the GNU GPL, version 3 or a later revision.
 
 import urwid
-import logging
 from urwid import WidgetWrap, ListBox
 from urwid import signals
+
 from .decoration import DecoratedTree, CollapseMixin
 from .nested import NestedTree
 try:

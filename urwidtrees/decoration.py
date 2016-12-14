@@ -1,8 +1,8 @@
 # Copyright (C) 2013  Patrick Totzke <patricktotzke@gmail.com>
 # This file is released under the GNU GPL, version 3 or a later revision.
-from .tree import Tree, SimpleTree
 import urwid
-import logging
+
+from .tree import Tree, SimpleTree
 
 NO_SPACE_MSG = 'too little space for requested decoration'
 
