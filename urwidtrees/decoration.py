@@ -216,7 +216,6 @@ class IndentedTree(DecoratedTree):
         DecoratedTree.__init__(self, tree)
 
     def decorate(self, pos, widget, is_first=True):
-        line = None
         indent = self._tree.depth(pos) * self._indent
         cols = [(indent, urwid.SolidFill(' ')), widget]
         # construct a Columns, defining all spacer as Box widgets
