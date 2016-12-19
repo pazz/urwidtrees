@@ -247,7 +247,7 @@ class CollapsibleIndentedTree(CollapseIconMixin, IndentedTree):
         builds a list element for given position in the tree.
         It consists of the original widget taken from the Tree and some
         decoration columns depending on the existence of parent and sibling
-        positions. The result is a urwid.Culumns widget.
+        positions. The result is a urwid.Columns widget.
         """
         void = urwid.SolidFill(' ')
         line = None
@@ -434,7 +434,7 @@ class ArrowTree(IndentedTree):
         builds a list element for given position in the tree.
         It consists of the original widget taken from the Tree and some
         decoration columns depending on the existence of parent and sibling
-        positions. The result is a urwid.Culumns widget.
+        positions. The result is a urwid.Columns widget.
         """
         line = None
         if pos is not None:
