@@ -137,6 +137,18 @@ class Tree(object):
                     current = self.next_position(current)
         return Posgen(reverse)
 
+    def leaves(self, pos):
+        """returns a recursive list of leaves below `pos`"""
+        leaves = []
+        pos = self.first_child_position(pos)
+        while pos is not None:
+            if self.is_leaf(pos):
+                leaves.append(self[pos])
+            else:
+                leaves.extend(self.leaves(pos))
+            pos = self.next_sibling_position(pos)
+        return leaves
+
     ####################################################################
     # End of high-level helper implementation. The following need to be
     # overwritten by subclasses
