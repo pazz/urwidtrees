@@ -20,7 +20,10 @@ import os
 # readthedocs.org hack,
 # needed to use autodocs on their build-servers:
 # http://readthedocs.org/docs/read-the-docs/en/latest/faq.html?highlight=autodocs#where-do-i-need-to-put-my-docs-for-rtd-to-find-it
-from unittest.mock import MagicMock
+try:
+    from unittest.mock import MagicMock
+except ImportError:
+    from mock import Mock as MagicMock
 
 class Mock(MagicMock):
     @classmethod
