@@ -40,7 +40,7 @@ sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
-from urwidtrees import __version__,__author__
+from urwidtrees import __version__,__copyright__
 
 # -- General configuration ------------------------------------------------
 
@@ -72,7 +72,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'urwidtrees'
-copyright = u'2015, Patrick Totzke'
+copyright = __copyright__
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
