@@ -52,7 +52,8 @@ class Tree(object):
                 candidate = self._next_of_kin(parent)
         return candidate
 
-    def _last_in_direction(self, starting_pos, direction):
+    @staticmethod
+    def _last_in_direction(starting_pos, direction):
         """
         move in the tree in given direction and return the last position.
 
@@ -142,7 +143,7 @@ class Tree(object):
     # End of high-level helper implementation. The following need to be
     # overwritten by subclasses
     ####################################################################
-    def parent_position(self, pos):
+    def parent_position(pos):
         """returns the position of the parent node of the node at `pos`
         or `None` if none exists."""
         return None
@@ -219,7 +220,8 @@ class SimpleTree(Tree):
     def __getitem__(self, pos):
         return self._get_node(self._treelist, pos)
 
-    def parent_position(self, pos):
+    @staticmethod
+    def parent_position(pos):
         parent = None
         if pos is not None and len(pos) > 1:
             parent = pos[:-1]
@@ -240,10 +242,12 @@ class SimpleTree(Tree):
     def next_sibling_position(self, pos):
         return self._confirm_pos(pos[:-1] + (pos[-1] + 1,))
 
-    def prev_sibling_position(self, pos):
+    @staticmethod
+    def prev_sibling_position(pos):
         return pos[:-1] + (pos[-1] - 1,) if (pos[-1] > 0) else None
 
     # optimizations
-    def depth(self, pos):
+    @staticmethod
+    def depth(pos):
         """more performant implementation due to specific structure of pos"""
         return len(pos) - 1
