@@ -14,6 +14,7 @@ Its design goals are
 
 See the `docs/` subdirectory for autogenetated API docs.
 
+[rtfd-img]: https://readthedocs.org/projects/urwidtrees/badge/
 [rtfd]: https://readthedocs.org/projects/urwidtrees/badge/)](https://urwidtrees.readthedocs.org/en/latest/
 [quantcode]: https://www.quantifiedcode.com/app/project/ed346645fa154f428e6681e29789521b
 [quantcode-img]: https://www.quantifiedcode.com/api/v1/project/ed346645fa154f428e6681e29789521b/badge.svg
