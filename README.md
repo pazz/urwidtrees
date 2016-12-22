@@ -1,6 +1,6 @@
 Urwid Tree Container API
 ========================
-[![Docs Build][rtfd]][rtfd]
+[![Docs Build][rtfd-img]][rtfd]
 [![Code Issues][quantcode-img]][quantcode]
 
 This is a Widget Container API for the [urwid](http://urwid.org/) toolkit.
