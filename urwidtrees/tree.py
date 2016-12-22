@@ -1,6 +1,7 @@
 # Copyright (C) 2013  Patrick Totzke <patricktotzke@gmail.com>
 # This file is released under the GNU GPL, version 3 or a later revision.
 
+
 class Tree(object):
     """
     Base class for a tree strucures that can be displayed by :class:`TreeBox`
@@ -220,9 +221,8 @@ class SimpleTree(Tree):
 
     def parent_position(self, pos):
         parent = None
-        if pos is not None:
-            if len(pos) > 1:
-                parent = pos[:-1]
+        if pos is not None and len(pos) > 1:
+            parent = pos[:-1]
         return parent
 
     def first_child_position(self, pos):
