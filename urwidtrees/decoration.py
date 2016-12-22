@@ -4,11 +4,9 @@ import urwid
 
 from .tree import Tree, SimpleTree
 
-NO_SPACE_MSG = 'too little space for requested decoration'
 
-
-class TreeDecorationError(Exception):
-    pass
+class NoSpaceError(Exception):
+    """too little space for requested decoration"""
 
 
 class DecoratedTree(Tree):
@@ -266,7 +264,7 @@ class CollapsibleIndentedTree(CollapseIconMixin, IndentedTree):
 
         # stop if indent is too small for this decoration
         if firstindent_width > available_space:
-            raise TreeDecorationError(NO_SPACE_MSG)
+            raise NoSpaceError()
 
         # add icon only for non-leafs
         is_leaf = self._tree.is_leaf(pos)
@@ -399,7 +397,7 @@ class ArrowTree(IndentedTree):
             if connector is not None:
                 width = connector.pack()[0]
                 if width > available_width:
-                    raise TreeDecorationError(NO_SPACE_MSG)
+                    raise NoSpaceError()
                 available_width -= width
                 if self._tree.next_sibling_position(pos) is not None:
                     barw = urwid.SolidFill(self._arrow_vbar_char)
@@ -415,7 +413,7 @@ class ArrowTree(IndentedTree):
             awidth, at = self._construct_arrow_tip(pos)
             if at is not None:
                 if awidth > available_width:
-                    raise TreeDecorationError(NO_SPACE_MSG)
+                    raise NoSpaceError()
                 available_width -= awidth
                 at_spacer = urwid.Pile([('pack', at), void])
                 cols.append((awidth, at_spacer))
