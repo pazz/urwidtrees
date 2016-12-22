@@ -20,30 +20,15 @@ import os
 # readthedocs.org hack,
 # needed to use autodocs on their build-servers:
 # http://readthedocs.org/docs/read-the-docs/en/latest/faq.html?highlight=autodocs#where-do-i-need-to-put-my-docs-for-rtd-to-find-it
+from unittest.mock import MagicMock
 
-class Mock(object):
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def __call__(self, *args, **kwargs):
-        return Mock()
-
+class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
-        return Mock() if name not in ('__file__', '__path__') else '/dev/null'
+            return MagicMock()
 
-class MockModule(object):
-    @classmethod
-    def __getattr__(cls, name):
-        return Mock if name not in ('__file__', '__path__') else '/dev/null'
-
-MOCK_MODULES = [ 'urwid', ]
-MOCK_DIRTY = []
-
-for mod_name in MOCK_MODULES:
-    sys.modules[mod_name] = MockModule()
-for mod_name in MOCK_DIRTY:
-    sys.modules[mod_name] = Mock()
+MOCK_MODULES = ['urwid',]
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 ##################################
 

@@ -21,5 +21,5 @@ setup(
     url=__url__,
     license=__copyright__,
     packages=['urwidtrees'],
-    install_requires=['urwid>=1.1.0'],
+    install_requires=['urwid>=1.1.0', 'mock'],
 )
