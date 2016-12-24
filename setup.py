@@ -13,4 +13,9 @@ setup(
     license="Licensed under the GNU GPL v3+.",
     packages=['urwidtrees'],
     install_requires=['urwid>=1.1.0', 'mock'],
+    extra_requires={
+        'docs': [
+            'mock',
+        ],
+    },
 )
