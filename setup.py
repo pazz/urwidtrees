@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 from distutils.core import setup
 
-import urwidtrees
+# this loads the version string into __version__
+with open('urwidtrees/version.py') as f:
+    exec(f.read())
 
 setup(
     name='urwidtrees',
-    version=urwidtrees.__version__,
+    version=__version__,
     description="Tree widgets for urwid",
     author="Patrick Totzke",
     author_email="patricktotzke@gmail.com",
