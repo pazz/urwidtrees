@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from distutils.core import setup
+from setuptools import setup
 
 # this loads the version string into __version__
 with open('urwidtrees/version.py') as f:
@@ -15,9 +15,10 @@ setup(
     license="Licensed under the GNU GPL v3+.",
     packages=['urwidtrees'],
     install_requires=['urwid>=1.1.0', 'mock'],
-    extra_require={
+    extras_require={
         'docs': [
             'mock',
         ],
     },
 )
+
