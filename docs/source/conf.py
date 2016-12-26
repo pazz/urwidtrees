@@ -15,6 +15,13 @@
 import sys
 import os
 
+# If extensions (or modules to document with autodoc) are in another directory,
+# add these directories to sys.path here. If the directory is relative to the
+# documentation root, use os.path.abspath to make it absolute, like shown here.
+#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
+from urwidtrees.version import __version__
+
 
 ###############################
 # readthedocs.org hack,
@@ -25,22 +32,25 @@ try:
 except ImportError:
     from mock import Mock as MagicMock
 
+
 class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
             return MagicMock()
 
-MOCK_MODULES = ['urwid',]
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
+class MockModule(object):
+    @classmethod
+    def __getattr__(cls, name):
+        return Mock if name not in ('__file__', '__path__') else '/dev/null'
+
+MOCK_MODULES = ['urwid']
+
+#for mod_name in MOCK_MODULES:
+#    sys.modules[mod_name] = MockModule()
+sys.modules.update((mod_name, MockModule()) for mod_name in MOCK_MODULES)
 
 ##################################
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
-from urwidtrees.version import __version__
 
 # -- General configuration ------------------------------------------------
 
@@ -155,7 +165,7 @@ html_theme = 'default'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -210,14 +220,14 @@ htmlhelp_basename = 'urwidtreesdoc'
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
+    # The paper size ('letterpaper' or 'a4paper').
+    #'papersize': 'letterpaper',
 
-# The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
+    # The font size ('10pt', '11pt' or '12pt').
+    #'pointsize': '10pt',
 
-# Additional stuff for the LaTeX preamble.
-#'preamble': '',
+    # Additional stuff for the LaTeX preamble.
+    #'preamble': '',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples

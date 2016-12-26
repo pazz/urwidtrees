@@ -16,5 +16,8 @@ to use tree-based focus movement or key bindings for collapsing subtrees.
 API
 ===
 
-.. automodule:: urwidtrees.widgets
-   :members:
+.. autoclass:: urwidtrees.widgets.TreeBox
+  :members:
+
+.. autoclass:: urwidtrees.widgets.TreeListWalker
+  :members:

@@ -1,8 +1,6 @@
 Decoration
 ----------
 
-.. module:: urwidtrees.decoration
-
 Is done by using (subclasses of) :class:`DecoratedTree`. Objects of this type
 wrap around a given `Tree` and themselves behave like a (possibly altered) tree.
 Per default, `DecoratedTree` just passes every method on to its underlying tree.
