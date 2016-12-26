@@ -19,8 +19,6 @@ import os
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
-from urwidtrees.version import __version__
 
 
 ###############################
@@ -88,6 +86,9 @@ copyright = u'Patrick Totzke'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
+# this loads the version string into __version__
+with open('../../urwidtrees/version.py') as f:
+    exec(f.read())
 # The short X.Y version.
 version = __version__
 # The full version, including alpha/beta/rc tags.
