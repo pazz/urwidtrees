@@ -5,4 +5,4 @@ from .decoration import ArrowTree, CollapsibleArrowTree
 from .nested import NestedTree
 from .widgets import TreeBox
 
-from version import __version__
+from .version import __version__
