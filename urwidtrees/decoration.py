@@ -266,7 +266,7 @@ class CollapsibleIndentedTree(CollapseIconMixin, IndentedTree):
         if firstindent_width > available_space:
             raise NoSpaceError()
 
-        # add icon only for non-leafs
+        # add icon only for non-leaves
         is_leaf = self._tree.is_leaf(pos)
         if not is_leaf:
             if icon is not None:
@@ -493,7 +493,7 @@ class CollapsibleArrowTree(CollapseIconMixin, ArrowTree):
             bar = urwid.AttrMap(barw, self._arrow_hbar_att or self._arrow_att)
             cols.insert(1, (self._icon_offset, bar))
 
-        # add icon only for non-leafs
+        # add icon only for non-leaves
         if self.collapsible(pos):
             iwidth, icon = self._construct_collapse_icon(pos)
             if icon is not None:
