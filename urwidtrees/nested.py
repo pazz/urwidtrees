@@ -245,12 +245,11 @@ class NestedTree(Tree):
 
             # get last child in the outmost tree if we do not drop "covered"
             # parts and the position path points to a root of the subtree.
-            if self._interpret_covered:
-                if entry.parent_position(pos[1]) is None:
-                    # return the last child of the outmost tree
-                    outerchild = tree.last_child_position(pos[0])
-                    if outerchild is not None:
-                        childpos = outerchild,
+            if self._interpret_covered and entry.parent_position(pos[1]) is None:
+                # return the last child of the outmost tree
+                outerchild = tree.last_child_position(pos[0])
+                if outerchild is not None:
+                    childpos = outerchild,
 
             # continue as if we have not found anything yet
             if childpos is None:
