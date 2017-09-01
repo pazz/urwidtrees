@@ -88,7 +88,7 @@ class Tree(object):
         return self._last_in_direction(pos, self.parent_position)
 
     def last_decendant(self, pos):
-        """position of last (in DFO) decendant of pos"""
+        """position of last (in DFO) descendant of pos"""
         return self._last_in_direction(pos, self.last_child_position)
 
     def last_sibling_position(self, pos):
