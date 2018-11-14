@@ -50,8 +50,9 @@ class DirectoryTree(Tree):
     def _list_dir(self, path):
         """returns absolute paths for all entries in a directory"""
         try:
-            elements = [os.path.join(
-                path, x) for x in os.listdir(path) if os.path.isdir(path)]
+            elements = [
+                os.path.join(path, x) for x in os.listdir(path)
+            ] if os.path.isdir(path) else []
             elements.sort()
         except OSError:
             elements = None
