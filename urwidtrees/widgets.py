@@ -113,15 +113,18 @@ class TreeBox(WidgetWrap):
         self._walker = TreeListWalker(tree)
         self._outer_list = ListBox(self._walker)
         if focus is not None:
-            self._outer_list.set_focus(focus)
+            self.set_focus(focus)
         self.__super.__init__(self._outer_list)
 
     # Widget API
     def get_focus(self):
         return self._outer_list.get_focus()
 
-    def set_focus(self, pos):
-        return self._outer_list.set_focus(pos)
+    def set_focus(self, pos, valign=None):
+        position = self._outer_list.set_focus(pos)
+        if valign:
+            position = self._outer_list.set_focus_valign(valign)
+        return position
 
     def refresh(self):
         self._walker.clear_cache()
