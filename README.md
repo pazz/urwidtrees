@@ -13,5 +13,12 @@ Its design goals are
 
 See the `docs/` subdirectory for autogenetated API docs.
 
+### Examples
+
+[<img src="docs/examples/example1.png" width="45%">](docs/examples/example1.py)
+[<img src="docs/examples/example2.png" width="45%">](docs/examples/example2.py)
+[<img src="docs/examples/example3.png" width="45%">](docs/examples/example3.py)
+[<img src="docs/examples/example5.png" width="45%">](docs/examples/example5.py)
+
 [rtfd-img]: https://readthedocs.org/projects/urwidtrees/badge/
 [rtfd]: https://urwidtrees.readthedocs.org/en/latest/
