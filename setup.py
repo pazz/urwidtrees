@@ -14,10 +14,10 @@ setup(
     url="https://github.com/pazz/urwidtrees",
     license="Licensed under the GNU GPL v3+.",
     packages=['urwidtrees'],
-    install_requires=['urwid>=1.1.0', 'mock'],
+    install_requires=['urwid>=1.1.0'],
     extras_require={
         'docs': [
-            'mock',
+            'mock;python_version<"3.3"',
         ],
     },
 )
