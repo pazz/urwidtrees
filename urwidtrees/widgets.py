@@ -114,7 +114,7 @@ class TreeBox(WidgetWrap):
         self._outer_list = ListBox(self._walker)
         if focus is not None:
             self.set_focus(focus)
-        self.__super.__init__(self._outer_list)
+        super().__init__(self._outer_list)
 
     # Widget API
     def get_focus(self):
