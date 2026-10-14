@@ -118,7 +118,7 @@ class TreeBox(WidgetWrap):
 
     # Widget API
     def get_focus(self):
-        return self._outer_list.get_focus()
+        return self._outer_list.body.get_focus()
 
     def set_focus(self, pos, valign=None):
         position = self._outer_list.set_focus(pos)
