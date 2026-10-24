@@ -20,6 +20,14 @@ class TestDecoratedTree(unittest.TestCase):
         t = DecoratedTree(small_tree()._treelist)
         self.assertEqual(list(t.positions()), ALL)
 
+    def test_root_follows_wrapped_tree(self):
+        tree = small_tree()
+        t = DecoratedTree(tree)
+        tree.root = (0, 0)
+        self.assertEqual(t.root, (0, 0))
+        t.root = (0,)
+        self.assertEqual(tree.root, (0,))
+
 
 class TestCollapsibleTree(unittest.TestCase):
 
