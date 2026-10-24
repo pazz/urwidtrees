@@ -66,7 +66,7 @@ class CollapseMixin(object):
     :meth:`[first|last]_child_position <first_child_position>`, forcing them to
     return `None` if the given position is considered collapsed. We use a
     (given) callable `is_collapsed` that accepts positions and returns a
-    boolean to determine which node is considered collapsed.
+    truth value to determine which node is considered collapsed.
     """
     def __init__(self, is_collapsed=lambda pos: False,
                  **kwargs):
@@ -75,7 +75,7 @@ class CollapseMixin(object):
 
     def is_collapsed(self, pos):
         """checks if given position is currently collapsed"""
-        collapsed = self._initially_collapsed(pos)
+        collapsed = bool(self._initially_collapsed(pos))
         if pos in self._divergent_positions:
             collapsed = not collapsed
         return collapsed
@@ -101,7 +101,7 @@ class CollapseMixin(object):
 
     def set_position_collapsed(self, pos, is_collapsed):
         if self.collapsible(pos):
-            if self._initially_collapsed(pos) == is_collapsed:
+            if bool(self._initially_collapsed(pos)) == bool(is_collapsed):
                 if pos in self._divergent_positions:
                     self._divergent_positions.remove(pos)
             else:

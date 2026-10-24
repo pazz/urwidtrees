@@ -54,6 +54,16 @@ class TestCollapsibleTree(unittest.TestCase):
         t.expand((0, 0))
         self.assertEqual(list(t.positions()), ALL)
 
+    def test_is_collapsed_callable_may_return_any_truth_value(self):
+        t = CollapsibleTree(small_tree(), is_collapsed={(0, 0): 1}.get)
+        self.assertIs(t.is_collapsed((0,)), False)
+        self.assertIs(t.is_collapsed((0, 0)), True)
+        t.expand((0,))
+        t.expand((0, 0))
+        self.assertEqual(list(t.positions()), ALL)
+        t.collapse((0,))
+        self.assertEqual(list(t.positions()), [(0,)])
+
 
 class TestDecorations(unittest.TestCase):
 
