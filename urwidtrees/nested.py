@@ -19,6 +19,8 @@ class NestedTree(Tree):
     """
     @property
     def root(self):
+        if self._tree.root is None:
+            return None
         root = (self._tree.root,)
         rcontent = self._tree[self._tree.root]
         if isinstance(rcontent, Tree):

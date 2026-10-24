@@ -162,8 +162,8 @@ class TreeBox(WidgetWrap):
         Collapse currently focussed position; works only if the underlying
         tree allows it.
         """
-        if implementsCollapseAPI(self._tree):
-            w, focuspos = self.get_focus()
+        focuspos = self._focus_position()
+        if implementsCollapseAPI(self._tree) and focuspos is not None:
             self._tree.collapse(focuspos)
             self._walker.clear_cache()
             self.refresh()
@@ -173,8 +173,8 @@ class TreeBox(WidgetWrap):
         Expand currently focussed position; works only if the underlying
         tree allows it.
         """
-        if implementsCollapseAPI(self._tree):
-            w, focuspos = self.get_focus()
+        focuspos = self._focus_position()
+        if implementsCollapseAPI(self._tree) and focuspos is not None:
             self._tree.expand(focuspos)
             self._walker.clear_cache()
             self.refresh()
@@ -185,7 +185,8 @@ class TreeBox(WidgetWrap):
         """
         if implementsCollapseAPI(self._tree):
             self._tree.collapse_all()
-            self.set_focus(self._tree.root)
+            if self._focus_position() is not None:
+                self.set_focus(self._tree.root)
             self._walker.clear_cache()
             self.refresh()
 
@@ -199,51 +200,43 @@ class TreeBox(WidgetWrap):
             self.refresh()
 
     # Tree based focus movement
+    def _focus_position(self):
+        """position of the focussed widget, or None if there is none"""
+        w, focuspos = self.get_focus()
+        return None if w is None else focuspos
+
+    def _focus_via(self, move):
+        """move focus to `move(focus)`, unless either is None"""
+        focuspos = self._focus_position()
+        if focuspos is not None:
+            target = move(focuspos)
+            if target is not None:
+                self.set_focus(target)
+
     def focus_parent(self):
         """move focus to parent node of currently focussed one"""
-        w, focuspos = self.get_focus()
-        parent = self._tree.parent_position(focuspos)
-        if parent is not None:
-            self.set_focus(parent)
+        self._focus_via(self._tree.parent_position)
 
     def focus_first_child(self):
         """move focus to first child of currently focussed one"""
-        w, focuspos = self.get_focus()
-        child = self._tree.first_child_position(focuspos)
-        if child is not None:
-            self.set_focus(child)
+        self._focus_via(self._tree.first_child_position)
 
     def focus_last_child(self):
         """move focus to last child of currently focussed one"""
-        w, focuspos = self.get_focus()
-        child = self._tree.last_child_position(focuspos)
-        if child is not None:
-            self.set_focus(child)
+        self._focus_via(self._tree.last_child_position)
 
     def focus_next_sibling(self):
         """move focus to next sibling of currently focussed one"""
-        w, focuspos = self.get_focus()
-        sib = self._tree.next_sibling_position(focuspos)
-        if sib is not None:
-            self.set_focus(sib)
+        self._focus_via(self._tree.next_sibling_position)
 
     def focus_prev_sibling(self):
         """move focus to previous sibling of currently focussed one"""
-        w, focuspos = self.get_focus()
-        sib = self._tree.prev_sibling_position(focuspos)
-        if sib is not None:
-            self.set_focus(sib)
+        self._focus_via(self._tree.prev_sibling_position)
 
     def focus_next(self):
         """move focus to next position (DFO)"""
-        w, focuspos = self.get_focus()
-        next = self._tree.next_position(focuspos)
-        if next is not None:
-            self.set_focus(next)
+        self._focus_via(self._tree.next_position)
 
     def focus_prev(self):
         """move focus to previous position (DFO)"""
-        w, focuspos = self.get_focus()
-        prev = self._tree.prev_position(focuspos)
-        if prev is not None:
-            self.set_focus(prev)
+        self._focus_via(self._tree.prev_position)
