@@ -14,6 +14,7 @@ setup(
     url="https://github.com/pazz/urwidtrees",
     license="Licensed under the GNU GPL v3+.",
     packages=['urwidtrees'],
-    install_requires=['urwid>=1.1.0'],
+    install_requires=['urwid>=2.1.2'],
+    python_requires='>=3.10',
 )
 
