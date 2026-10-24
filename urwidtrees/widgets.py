@@ -1,18 +1,14 @@
 # Copyright (C) 2013  Patrick Totzke <patricktotzke@gmail.com>
 # This file is released under the GNU GPL, version 3 or a later revision.
 
+from functools import lru_cache
+
 import urwid
 from urwid import WidgetWrap, ListBox
 from urwid import signals
 
 from .decoration import DecoratedTree, CollapseMixin
 from .nested import NestedTree
-try:
-    # lru_cache is part of the stdlib from v3.2 onwards
-    from functools import lru_cache
-except ImportError:
-    # on older versions we use a backport
-    from .lru_cache import lru_cache
 
 
 # The following functions are used to check dynamically if a tree offers sub-APIs
@@ -46,10 +42,13 @@ class TreeListWalker(urwid.ListWalker):
         self._tree = tree
         self._focus = focus or tree.root
         self.root = tree.root
+        self._lines = lru_cache()(self._line)
 
-    @lru_cache()
     def __getitem__(self, pos):
         """gets (possibly decorated) line widget at given position"""
+        return self._lines(pos)
+
+    def _line(self, pos):
         if implementsDecorateAPI(self._tree):
             entry = self._tree.get_decorated(pos)
         else:
@@ -58,7 +57,7 @@ class TreeListWalker(urwid.ListWalker):
 
     def clear_cache(self):
         """removes all cached lines"""
-        self.__getitem__.cache_clear()
+        self._lines.cache_clear()
         self._modified()
 
     def _get(self, pos):
