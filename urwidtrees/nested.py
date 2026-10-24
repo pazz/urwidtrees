@@ -21,11 +21,7 @@ class NestedTree(Tree):
     def root(self):
         if self._tree.root is None:
             return None
-        root = (self._tree.root,)
-        rcontent = self._tree[self._tree.root]
-        if isinstance(rcontent, Tree):
-            root = root + (rcontent.root,)
-        return root
+        return self._sanitize_position((self._tree.root,))
 
     def _sanitize_position(self, pos, tree=None, last=False):
         """
