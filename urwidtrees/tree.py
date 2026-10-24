@@ -125,19 +125,14 @@ class Tree(object):
 
     def positions(self, reverse=False):
         """returns a generator that walks the positions of this tree in DFO"""
-        def Posgen(reverse):
-            if reverse:
-                lastrootsib = self.last_sibling_position(self.root)
-                current = self.last_decendant(lastrootsib)
-                while current is not None:
-                    yield current
-                    current = self.prev_position(current)
-            else:
-                current = self.root
-                while current is not None:
-                    yield current
-                    current = self.next_position(current)
-        return Posgen(reverse)
+        if reverse:
+            current = self.last_decendant(self.last_sibling_position(self.root))
+            step = self.prev_position
+        else:
+            current, step = self.root, self.next_position
+        while current is not None:
+            yield current
+            current = step(current)
 
     ####################################################################
     # End of high-level helper implementation. The following need to be
