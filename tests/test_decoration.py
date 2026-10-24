@@ -65,6 +65,23 @@ class TestCollapsibleTree(unittest.TestCase):
         self.assertEqual(list(t.positions()), [(0,)])
 
 
+class TestWideGlyphs(unittest.TestCase):
+    """icons and tips take their display width, not their length"""
+
+    def test_arrow_tip(self):
+        t = ArrowTree(small_tree(), indent=4, arrow_tip_char='＞')
+        self.assertEqual(render_tree(t)[1:3], ['├─＞a', '│   ├─＞a1'])
+
+    def test_collapse_icon(self):
+        t = CollapsibleIndentedTree(small_tree(), indent=5,
+                                    icon_expanded_char='－')
+        self.assertEqual(render_tree(t, 24)[:3], [
+            '[－] r',
+            '     [－] a',
+            '               a1',
+        ])
+
+
 class TestDecorations(unittest.TestCase):
 
     def test_indented(self):
