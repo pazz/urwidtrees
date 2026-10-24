@@ -117,6 +117,22 @@ class TestDecorations(unittest.TestCase):
             '└───➤b',
         ])
 
+    def test_arrows_without_bars(self):
+        t = ArrowTree(small_tree(), arrow_hbar_char=None, arrow_vbar_char=None)
+        self.assertEqual(render_tree(t), [
+            'r',
+            '├ ➤a',
+            '   ├ ➤a1',
+            '   └ ➤a2',
+            '└ ➤b',
+        ])
+        t = CollapsibleArrowTree(small_tree(), icon_offset=2, indent=8,
+                                 arrow_hbar_char=None, arrow_vbar_char=None)
+        self.assertEqual(render_tree(t, 20)[1:3], [
+            '├ [-]  ➤a',
+            '        ├      ➤a1',
+        ])
+
     def test_collapsible_arrows_with_icon_offset(self):
         t = CollapsibleArrowTree(small_tree(), icon_offset=2, indent=8)
         self.assertEqual(render_tree(t, 20), [
