@@ -1,10 +1,14 @@
+import gc
 import unittest
+import weakref
 
 import urwid
 
 from urwidtrees import (ArrowTree, CollapsibleArrowTree, CollapsibleTree,
                         SimpleTree, TreeBox)
+from urwidtrees.widgets import TreeListWalker
 
+from .test_tree import FlatList
 from .utilities import Node, render, small_tree
 
 SIZE = (20, 6)
@@ -103,3 +107,33 @@ class TestTreeBox(unittest.TestCase):
         render(box, 10, 6)
         self.press(box, 'right', *[']'] * 20)
         self.assertEqual(render(box, 10, 6)[-1].rstrip(), 'c20')
+
+
+class TestTreeListWalker(unittest.TestCase):
+
+    def test_cache_per_walker(self):
+        tree = ArrowTree(small_tree())
+        first, second = TreeListWalker(tree), TreeListWalker(tree)
+        line = first[(0, 1)]
+        second.clear_cache()
+        self.assertIs(first[(0, 1)], line)
+        first.clear_cache()
+        self.assertIsNot(first[(0, 1)], line)
+
+    def test_walker_is_freed(self):
+        walker = TreeListWalker(small_tree())
+        walker[(0,)]
+        ref = weakref.ref(walker)
+        del walker
+        gc.collect()
+        self.assertIsNone(ref())
+
+    def test_falsy_focus(self):
+        class Countdown(FlatList):
+            """positions 2, 1, 0 in this order"""
+            root = 2
+            next_sibling_position = FlatList.prev_sibling_position
+
+        walker = TreeListWalker(Countdown([Node('a'), Node('b'), Node('c')]),
+                                focus=0)
+        self.assertEqual(walker.get_focus()[1], 0)
