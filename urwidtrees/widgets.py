@@ -3,7 +3,6 @@
 
 import urwid
 from urwid import WidgetWrap, ListBox
-from urwid import signals
 
 from .decoration import DecoratedTree, CollapseMixin
 from .nested import NestedTree
@@ -127,8 +126,18 @@ class TreeBox(WidgetWrap):
         return position
 
     def refresh(self):
+        # move the focus out of subtrees collapsed in the meantime
+        focuspos = self._focus_position()
+        if implementsCollapseAPI(self._tree) and focuspos is not None:
+            visible = focuspos
+            pos = self._tree.parent_position(focuspos)
+            while pos is not None:
+                if self._tree.is_collapsed(pos):
+                    visible = pos
+                pos = self._tree.parent_position(pos)
+            if visible != focuspos:
+                self.set_focus(visible)
         self._walker.clear_cache()
-        signals.emit_signal(self._walker, "modified")
 
     def keypress(self, size, key):
         key = self._outer_list.keypress(size, key)
@@ -161,7 +170,6 @@ class TreeBox(WidgetWrap):
         focuspos = self._focus_position()
         if implementsCollapseAPI(self._tree) and focuspos is not None:
             self._tree.collapse(focuspos)
-            self._walker.clear_cache()
             self.refresh()
 
     def expand_focussed(self):
@@ -172,7 +180,6 @@ class TreeBox(WidgetWrap):
         focuspos = self._focus_position()
         if implementsCollapseAPI(self._tree) and focuspos is not None:
             self._tree.expand(focuspos)
-            self._walker.clear_cache()
             self.refresh()
 
     def collapse_all(self):
@@ -183,7 +190,6 @@ class TreeBox(WidgetWrap):
             self._tree.collapse_all()
             if self._focus_position() is not None:
                 self.set_focus(self._tree.root)
-            self._walker.clear_cache()
             self.refresh()
 
     def expand_all(self):
@@ -192,7 +198,6 @@ class TreeBox(WidgetWrap):
         """
         if implementsCollapseAPI(self._tree):
             self._tree.expand_all()
-            self._walker.clear_cache()
             self.refresh()
 
     # Tree based focus movement
