@@ -48,6 +48,19 @@ class TestTreeBox(unittest.TestCase):
     def test_unhandled_key_is_returned(self):
         self.assertEqual(TreeBox(small_tree()).keypress(SIZE, 'x'), 'x')
 
+    def test_tree_key_without_effect_is_returned(self):
+        box = TreeBox(small_tree())
+        for key in ['left', '[', ']', '-', '+', 'C', 'E']:
+            self.assertEqual(box.keypress(SIZE, key), key)
+        self.assertIsNone(box.keypress(SIZE, 'right'))
+        self.assertIsNone(box.keypress(SIZE, 'right'))
+        self.assertEqual(box.keypress(SIZE, 'right'), 'right')
+        for key in ['-', '+', 'C', 'E']:
+            tree = CollapsibleTree(small_tree())
+            tree.collapse((0, 0))
+            box = TreeBox(tree)
+            self.assertIsNone(box.keypress(SIZE, key))
+
     def test_collapse_keys(self):
         box = TreeBox(CollapsibleTree(small_tree()))
         self.press(box, 'right', '-', 'down')
