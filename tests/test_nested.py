@@ -77,3 +77,45 @@ class TestNestedCollapse(unittest.TestCase):
         self.assertTrue(self.inner.is_collapsed((0,)))
         self.tree.toggle_collapsed(self.x)
         self.assertFalse(self.inner.is_collapsed((0,)))
+
+    def test_root_subtree(self):
+        """one-element positions belong to the outer tree, also when its
+        root is a subtree"""
+        inner = CollapsibleTree(SimpleTree([(Node('x'), [(Node('y'), None)])]))
+        outer = CollapsibleTree(SimpleTree([
+            (inner, None), (Node('b'), [(Node('c'), None)])]))
+        tree = NestedTree(outer)
+        b = ((1,),)
+        self.assertTrue(tree.collapsible(b))
+        tree.collapse(b)
+        self.assertTrue(tree.is_collapsed(b))
+        self.assertTrue(outer.is_collapsed((1,)))
+        self.assertFalse(inner.is_collapsed((0,)))
+        self.assertEqual(list(tree.positions()),
+                         [((0,), (0,)), ((0,), (0, 0)), b])
+        tree.toggle_collapsed(b)
+        self.assertFalse(outer.is_collapsed((1,)))
+        tree.collapse(b)
+        tree.expand(b)
+        self.assertFalse(tree.is_collapsed(b))
+
+    def test_collapse_all_reaches_hidden_subtrees(self):
+        inner = CollapsibleTree(SimpleTree([(Node('x'), [(Node('y'), None)])]))
+        outer = CollapsibleTree(
+            SimpleTree([(Node('R'), [(Node('a'), [(inner, None)])])]),
+            is_collapsed=lambda pos: pos == (0, 0))
+        tree = NestedTree(outer)
+        tree.collapse_all()
+        self.assertTrue(inner.is_collapsed((0,)))
+        self.assertEqual(list(tree.positions()), [((0,),)])
+        tree.expand_all()
+        self.assertEqual(len(list(tree.positions())), 4)
+
+    def test_collapse_all_wide(self):
+        outer = CollapsibleTree(SimpleTree([(Node('R'), [
+            (Node(str(i)), [(Node('c'), None)]) for i in range(1500)])]))
+        tree = NestedTree(outer)
+        tree.collapse_all()
+        self.assertEqual(list(tree.positions()), [((0,),)])
+        tree.expand_all()
+        self.assertEqual(len(list(tree.positions())), 3001)
