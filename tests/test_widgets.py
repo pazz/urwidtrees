@@ -77,6 +77,17 @@ class TestTreeBox(unittest.TestCase):
         box.refresh()
         self.assertEqual(render(box, 10, 6)[1].rstrip(), '├[+]➤a')
 
+    def test_refresh_moves_focus_out_of_collapsed_subtree(self):
+        tree = CollapsibleTree(small_tree())
+        box = TreeBox(tree, focus=(0, 0, 1))
+        render(box, 10, 6)
+        tree.collapse((0, 0))
+        tree.collapse((0,))
+        box.refresh()
+        self.assertEqual(box.get_focus()[1], (0,))
+        self.assertEqual(render(box, 10, 6)[0].rstrip(), 'r')
+        self.assertEqual(self.press(box, 'down'), (0,))
+
     def test_keys_reach_the_focused_row_once(self):
         received = []
 

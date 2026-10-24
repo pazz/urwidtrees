@@ -127,6 +127,17 @@ class TreeBox(WidgetWrap):
         return position
 
     def refresh(self):
+        # move the focus out of subtrees collapsed in the meantime
+        focuspos = self._focus_position()
+        if implementsCollapseAPI(self._tree) and focuspos is not None:
+            visible = focuspos
+            pos = self._tree.parent_position(focuspos)
+            while pos is not None:
+                if self._tree.is_collapsed(pos):
+                    visible = pos
+                pos = self._tree.parent_position(pos)
+            if visible != focuspos:
+                self.set_focus(visible)
         self._walker.clear_cache()
         signals.emit_signal(self._walker, "modified")
 
