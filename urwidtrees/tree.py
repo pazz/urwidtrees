@@ -28,17 +28,6 @@ class Tree(object):
     """
     root = None
 
-    # local helper
-    def _get(self, pos):
-        """loads widget at given position; handling invalid arguments"""
-        res = None, None
-        if pos is not None:
-            try:
-                res = self[pos], pos
-            except (IndexError, KeyError):
-                pass
-        return res
-
     def _next_of_kin(self, pos):
         """
         looks up the next sibling of the closest ancestor with not-None next
@@ -182,7 +171,6 @@ class SimpleTree(Tree):
     def __init__(self, treelist):
         self._treelist = treelist
         self.root = (0,) if treelist else None
-        Tree.__init__(self)
 
     # a few local helper methods
     def _get_substructure(self, treelist, pos):
