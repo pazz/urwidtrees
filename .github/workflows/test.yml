@@ -1,0 +1,38 @@
+name: Run tests
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.14"]
+        urwid: [""]
+        include:
+          # the oldest urwid known to pass; setup.py still claims >=1.1.0
+          - python-version: "3.10"
+            urwid: "2.1.2"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: pip install . ${{ matrix.urwid && format('urwid=={0}', matrix.urwid) }}
+
+      - name: Run tests
+        run: python3 -m unittest --verbose
