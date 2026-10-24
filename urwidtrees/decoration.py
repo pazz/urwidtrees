@@ -408,6 +408,7 @@ class ArrowTree(IndentedTree):
                 # pile up connector and bar
                 spacer = urwid.Pile([('pack', connector), below])
                 cols.append((width, spacer))
+            bar_index = len(cols)
 
             #arrow tip
             awidth, at = self._construct_arrow_tip(pos)
@@ -424,7 +425,7 @@ class ArrowTree(IndentedTree):
                 bar = urwid.AttrMap(
                     barw, self._arrow_hbar_att or self._arrow_att)
                 hb_spacer = urwid.Pile([(1, bar), void])
-                cols.insert(1, (available_width, hb_spacer))
+                cols.insert(bar_index, (available_width, hb_spacer))
         return cols
 
     def decorate(self, pos, widget, is_first=True):

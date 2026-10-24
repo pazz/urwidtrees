@@ -126,3 +126,14 @@ class TestDecorations(unittest.TestCase):
             '│       └──────➤a2',
             '└──────➤b',
         ])
+
+    def test_arrows_without_connectors(self):
+        t = ArrowTree(small_tree(), arrow_connector_tchar=None,
+                      arrow_connector_lchar=None)
+        self.assertEqual(render_tree(t), [
+            'r',
+            '──➤a',
+            '│  ──➤a1',
+            '│  ──➤a2',
+            '──➤b',
+        ])
