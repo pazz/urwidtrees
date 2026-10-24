@@ -10,8 +10,9 @@ numbers it addresses (pazz/urwidtrees). Read the issue and its discussion
 yourself with `gh` and the change with `git show`; do not rely on anyone's
 summary.
 
-Rules: work in your own worktree under `.git/review-tmp/` and remove it
-afterwards. Never modify tracked files elsewhere, never push or post on
+Rules: work in your own worktree, `.git/review-tmp/<unique name>`, and
+remove only that worktree afterwards; other reviewers may be working
+beside you. Never modify tracked files elsewhere, never push or post on
 GitHub, and never use a bare `git stash`.
 
 Answer, with evidence from the code:
