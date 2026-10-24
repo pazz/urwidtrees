@@ -3,8 +3,9 @@ import unittest
 from urwidtrees import (ArrowTree, CollapsibleArrowTree,
                         CollapsibleIndentedTree, CollapsibleTree,
                         DecoratedTree, IndentedTree)
+from urwidtrees.decoration import NoSpaceError
 
-from .utilities import small_tree, render_tree
+from .utilities import render, render_tree, small_tree
 
 ALL = [(0,), (0, 0), (0, 0, 0), (0, 0, 1), (0, 1)]
 
@@ -91,6 +92,18 @@ class TestDecorations(unittest.TestCase):
             '    [+] a',
             '        b',
         ])
+
+    def test_collapsible_indented_leaves_need_no_icon_space(self):
+        t = CollapsibleIndentedTree(small_tree(), indent=2)
+        self.assertEqual(render(t.get_decorated((0, 0, 1)), 16)[0].rstrip(),
+                         '      a2')
+        with self.assertRaises(NoSpaceError):
+            t.get_decorated((0, 0))
+        t = CollapsibleIndentedTree(small_tree(), indent=2, icon_offset=3,
+                                    icon_collapsed_char=None,
+                                    icon_expanded_char=None)
+        self.assertEqual(render(t.get_decorated((0, 0)), 16)[0].rstrip(),
+                         '    a')
 
     def test_arrows(self):
         self.assertEqual(render_tree(ArrowTree(small_tree())), [

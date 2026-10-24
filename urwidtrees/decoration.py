@@ -262,14 +262,13 @@ class CollapsibleIndentedTree(CollapseIconMixin, IndentedTree):
         available_space = self._indent
         firstindent_width = self._icon_offset + iwidth
 
-        # stop if indent is too small for this decoration
-        if firstindent_width > available_space:
-            raise NoSpaceError()
-
         # add icon only for non-leafs
         is_leaf = self._tree.is_leaf(pos)
         if not is_leaf:
             if icon is not None:
+                # stop if indent is too small for the icon
+                if firstindent_width > available_space:
+                    raise NoSpaceError()
                 # space to the left
                 cols.append((available_space - firstindent_width,
                              urwid.SolidFill(' ')))
