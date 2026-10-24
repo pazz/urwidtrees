@@ -116,7 +116,7 @@ class NestedTree(Tree):
     def toggle_collapsed(self, pos):
         subtree = self._get_subtree_for(pos)
         if isinstance(subtree, (CollapseMixin, NestedTree)):
-            subtree.toggle_collapsed(pos)
+            subtree.toggle_collapsed(pos[-1])
 
     def collapse(self, pos):
         subtree = self._get_subtree_for(pos)
