@@ -130,25 +130,21 @@ class TreeBox(WidgetWrap):
         self._walker.clear_cache()
         signals.emit_signal(self._walker, "modified")
 
+    _tree_keys = {
+        'left': 'focus_parent',
+        'right': 'focus_first_child',
+        '[': 'focus_prev_sibling',
+        ']': 'focus_next_sibling',
+        '-': 'collapse_focussed',
+        '+': 'expand_focussed',
+        'C': 'collapse_all',
+        'E': 'expand_all',
+    }
+
     def keypress(self, size, key):
         key = self._outer_list.keypress(size, key)
-        if key in ['left', 'right', '[', ']', '-', '+', 'C', 'E', ]:
-            if key == 'left':
-                self.focus_parent()
-            elif key == 'right':
-                self.focus_first_child()
-            elif key == '[':
-                self.focus_prev_sibling()
-            elif key == ']':
-                self.focus_next_sibling()
-            elif key == '-':
-                self.collapse_focussed()
-            elif key == '+':
-                self.expand_focussed()
-            elif key == 'C':
-                self.collapse_all()
-            elif key == 'E':
-                self.expand_all()
+        if key in self._tree_keys:
+            getattr(self, self._tree_keys[key])()
             return None
         return key
 
