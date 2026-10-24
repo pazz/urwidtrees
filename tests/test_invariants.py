@@ -215,11 +215,13 @@ class TestNestedTree(InvariantsMixin, unittest.TestCase):
     def test_navigation(self):
         self.check(self.check_navigation, nesting=1, inner_forests=True,
                    root_subtree=True)
-        self.check(self.check_navigation, nesting=3, inner_forests=True)
+        self.check(self.check_navigation, nesting=3, inner_forests=True,
+                   root_subtree=True)
 
     def test_depth(self):
         self.check(self.check_depth, nesting=1, root_subtree=True)
-        self.check(self.check_depth, nesting=3, inner_forests=True)
+        self.check(self.check_depth, nesting=3, inner_forests=True,
+                   root_subtree=True)
 
     # Known bugs, each on the smallest tree that shows it. Once fixed, the
     # random sweep above should be extended to the shape in question.
@@ -244,7 +246,6 @@ class TestNestedTree(InvariantsMixin, unittest.TestCase):
         middle = SimpleTree([(inner, None)])
         self.check_fixed([(Node('R'), [(middle, None), (Node('c'), None)])])
 
-    @unittest.expectedFailure  # root descends one nesting level only
     def test_root_two_levels(self):
         inner = SimpleTree([(Node('x'), None)])
         self.check_fixed([(SimpleTree([(inner, None)]), None)])
