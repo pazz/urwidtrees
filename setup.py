@@ -15,10 +15,5 @@ setup(
     license="Licensed under the GNU GPL v3+.",
     packages=['urwidtrees'],
     install_requires=['urwid>=1.1.0'],
-    extras_require={
-        'docs': [
-            'mock;python_version<"3.3"',
-        ],
-    },
 )
 
