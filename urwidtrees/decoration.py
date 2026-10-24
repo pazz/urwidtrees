@@ -333,7 +333,7 @@ class ArrowTree(IndentedTree):
         fed into a Columns widget.
         """
         parent = self._tree.parent_position(pos)
-        if parent is not None:
+        while parent is not None:
             grandparent = self._tree.parent_position(parent)
             if self._indent > 0 and grandparent is not None:
                 parent_sib = self._tree.next_sibling_position(parent)
@@ -348,9 +348,8 @@ class ArrowTree(IndentedTree):
                     bar = urwid.AttrMap(barw, self._arrow_vbar_att or
                                         self._arrow_att)
                     acc.insert(0, ((1, bar)))
-            return self._construct_spacer(parent, acc)
-        else:
-            return acc
+            parent = grandparent
+        return acc
 
     def _construct_connector(self, pos):
         """
