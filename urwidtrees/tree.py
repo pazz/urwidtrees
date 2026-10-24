@@ -44,13 +44,13 @@ class Tree(object):
         looks up the next sibling of the closest ancestor with not-None next
         siblings.
         """
-        candidate = None
         parent = self.parent_position(pos)
-        if parent is not None:
+        while parent is not None:
             candidate = self.next_sibling_position(parent)
-            if candidate is None:
-                candidate = self._next_of_kin(parent)
-        return candidate
+            if candidate is not None:
+                return candidate
+            parent = self.parent_position(parent)
+        return None
 
     @staticmethod
     def _last_in_direction(starting_pos, direction):
@@ -69,11 +69,12 @@ class Tree(object):
 
     def depth(self, pos):
         """determine depth of node at pos"""
-        parent = self.parent_position(pos)
-        if parent is None:
-            return 0
-        else:
-            return self.depth(parent) + 1
+        depth = 0
+        pos = self.parent_position(pos)
+        while pos is not None:
+            depth += 1
+            pos = self.parent_position(pos)
+        return depth
 
     def is_leaf(self, pos):
         """checks if given position has no children"""
@@ -186,16 +187,13 @@ class SimpleTree(Tree):
 
     # a few local helper methods
     def _get_substructure(self, treelist, pos):
-        """recursive helper to look up node-tuple for `pos` in `treelist`"""
-        subtree = None
-        if len(pos) > 1:
-            subtree = self._get_substructure(treelist[pos[0]][1], pos[1:])
-        else:
-            try:
-                subtree = treelist[pos[0]]
-            except (IndexError, TypeError):
-                pass
-        return subtree
+        """look up node-tuple for `pos` in `treelist`"""
+        for index in pos[:-1]:
+            treelist = treelist[index][1]
+        try:
+            return treelist[pos[-1]]
+        except (IndexError, TypeError):
+            return None
 
     def _get_node(self, treelist, pos):
         """
