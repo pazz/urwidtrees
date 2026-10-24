@@ -1,6 +1,6 @@
 import unittest
 
-from urwidtrees import SimpleTree
+from urwidtrees import SimpleTree, Tree
 
 from .utilities import Node, small_tree
 
@@ -55,3 +55,31 @@ class TestSimpleTree(unittest.TestCase):
         t = SimpleTree([(Node('x'), None), (Node('y'), [(Node('z'), None)])])
         self.assertEqual(list(t.positions()), [(0,), (1,), (1, 0)])
         self.assertEqual(t.first_ancestor((1, 0)), (1,))
+
+
+class FlatList(Tree):
+    """a Tree that relies on the defaults for parents and children"""
+    root = 0
+
+    def __init__(self, widgets):
+        self._widgets = widgets
+
+    def __getitem__(self, pos):
+        return self._widgets[pos]
+
+    def next_sibling_position(self, pos):
+        return pos + 1 if pos + 1 < len(self._widgets) else None
+
+    def prev_sibling_position(self, pos):
+        return pos - 1 if pos > 0 else None
+
+
+class TestTreeDefaults(unittest.TestCase):
+
+    def test_flat_list(self):
+        t = FlatList([Node('a'), Node('b'), Node('c')])
+        self.assertEqual(list(t.positions()), [0, 1, 2])
+        self.assertEqual(list(t.positions(reverse=True)), [2, 1, 0])
+        self.assertEqual(t.depth(2), 0)
+        self.assertEqual(t.first_ancestor(2), 2)
+        self.assertTrue(t.is_leaf(1))

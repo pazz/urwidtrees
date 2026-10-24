@@ -143,7 +143,7 @@ class Tree(object):
     # End of high-level helper implementation. The following need to be
     # overwritten by subclasses
     ####################################################################
-    def parent_position(pos):
+    def parent_position(self, pos):
         """returns the position of the parent node of the node at `pos`
         or `None` if none exists."""
         return None
