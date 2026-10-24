@@ -486,10 +486,7 @@ class CollapsibleArrowTree(CollapseIconMixin, ArrowTree):
         overall_width = self._icon_offset
 
         if self._icon_offset > 0:
-            # how often we repeat the hbar_char until width icon_offset is
-            # reached
-            hbar_char_count = len(self._arrow_hbar_char) / self._icon_offset
-            barw = urwid.Text(self._arrow_hbar_char * hbar_char_count)
+            barw = urwid.Divider(self._arrow_hbar_char)
             bar = urwid.AttrMap(barw, self._arrow_hbar_att or self._arrow_att)
             cols.insert(1, (self._icon_offset, bar))
 

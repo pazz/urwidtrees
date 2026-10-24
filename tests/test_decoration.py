@@ -106,3 +106,13 @@ class TestDecorations(unittest.TestCase):
             '├[+]➤a',
             '└───➤b',
         ])
+
+    def test_collapsible_arrows_with_icon_offset(self):
+        t = CollapsibleArrowTree(small_tree(), icon_offset=2, indent=8)
+        self.assertEqual(render_tree(t, 20), [
+            'r',
+            '├─[-]──➤a',
+            '│       ├──────➤a1',
+            '│       └──────➤a2',
+            '└──────➤b',
+        ])
