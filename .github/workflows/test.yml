@@ -36,3 +36,11 @@ jobs:
 
       - name: Run tests
         run: python3 -m unittest --verbose
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Ruff
+        run: pipx run ruff==0.15.4 check urwidtrees tests
