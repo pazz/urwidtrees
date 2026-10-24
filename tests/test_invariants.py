@@ -37,7 +37,7 @@ def random_forest(rng, labels, depth=4, width=3, nesting=0,
                                   nesting - 1, inner_forests, root_subtree)
             forest.append((SimpleTree(inner), None))
             continue
-        children = None
+        children = rng.choice([None, []])  # both mean no children
         if depth > 0 and rng.random() < 0.6:
             children = random_forest(rng, labels, depth - 1, width, nesting,
                                      inner_forests, True)
@@ -123,11 +123,11 @@ class TestSimpleTree(InvariantsMixin, unittest.TestCase):
                 self.check_navigation(tree, expected)
                 self.check_depth(tree, expected)
 
-    @unittest.expectedFailure  # last_child_position of [] is pos + (-1,)
     def test_empty_child_lists(self):
-        tree = SimpleTree([(Node('r'), [(Node('a'), []), (Node('b'), None)])])
-        expected = list(flatten(tree._treelist))
-        self.check_navigation(tree, expected)
+        for forest in [[(Node('r'), [])],
+                       [(Node('r'), [(Node('a'), []), (Node('b'), None)])]]:
+            with self.subTest(forest=forest):
+                self.check_navigation(SimpleTree(forest), list(flatten(forest)))
 
     # RecursionError, one frame per level in SimpleTree._get_substructure,
     # Tree.depth and ArrowTree._construct_spacer

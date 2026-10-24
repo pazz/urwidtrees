@@ -235,7 +235,7 @@ class SimpleTree(Tree):
         subtree = self._get_substructure(self._treelist, pos)
         if subtree is not None:
             children = subtree[1]
-            if children is not None:
+            if children:
                 candidate = pos + (len(children) - 1,)
         return candidate
 
