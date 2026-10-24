@@ -98,9 +98,13 @@ class TreeBox(WidgetWrap):
     based on directions in the Tree and to collapse/expand subtrees if
     possible.
 
-    TreeBox interprets `left/right` as well as `page up/`page down` to move the
-    focus to parent/first child and next/previous sibling respectively. All
-    other keys are passed to the underlying ListBox.
+    Keys are passed to the underlying ListBox first. Of those it leaves,
+    TreeBox interprets `left`/`right` to move the focus to the parent/first
+    child, `[`/`]` to move it to the previous/next sibling, `-`/`+` to
+    collapse/expand the focussed node and `C`/`E` to collapse/expand all.
+    A movement key that does not move the focus, and a collapse key on a tree
+    that cannot collapse, are returned as unhandled, so that enclosing
+    widgets can use them.
     """
 
     def __init__(self, tree, focus=None):
@@ -144,8 +148,14 @@ class TreeBox(WidgetWrap):
     def keypress(self, size, key):
         key = self._outer_list.keypress(size, key)
         if key in self._tree_keys:
+            before = self._focus_position()
             getattr(self, self._tree_keys[key])()
-            return None
+            if key in '-+CE':
+                acted = implementsCollapseAPI(self._tree)
+            else:
+                acted = self._focus_position() != before
+            if acted:
+                return None
         return key
 
     # Collapse operations
