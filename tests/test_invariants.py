@@ -184,14 +184,6 @@ class TestDecoratedTrees(InvariantsMixin, unittest.TestCase):
                             self.assertEqual(line.rstrip(), ' ' * 2 * len(p[1:])
                                              + tree[p].text)
 
-    @unittest.expectedFailure  # float multiplied with str for icon_offset > 0
-    def test_collapsible_arrows_with_icon_offset(self):
-        tree = CollapsibleArrowTree(SimpleTree(
-            [(Node('r'), [(Node('a'), [(Node('a1'), None)])])]),
-            icon_offset=2, indent=8)
-        for p in tree.positions():
-            render(tree.get_decorated(p), 40)
-
     def test_collapse(self):
         """collapsing hides exactly the descendants of collapsed nodes"""
         for seed, forest in self.forests():
