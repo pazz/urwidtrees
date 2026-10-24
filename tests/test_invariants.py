@@ -239,6 +239,15 @@ class TestNestedTree(InvariantsMixin, unittest.TestCase):
         inner = SimpleTree([(Node('x'), None)])
         self.check_fixed([(SimpleTree([(inner, None)]), None)])
 
+    def test_empty(self):
+        tree = NestedTree(SimpleTree([]))
+        self.assertIsNone(tree.root)
+        self.assertEqual(list(tree.positions()), [])
+
+    @unittest.expectedFailure  # root points into the empty subtree
+    def test_empty_subtree_at_root(self):
+        self.check_fixed([(SimpleTree([]), None), (Node('b'), None)])
+
     # depth counts levels inside subtrees, as parent_position does, so a
     # fix that returns the depth in the outmost tree will not pass
     @unittest.expectedFailure  # depth uses the wrong tree and slice
@@ -283,9 +292,22 @@ class TestTreeBox(unittest.TestCase):
                     self.assertEqual(box.get_focus()[1],
                                      p if target is None else target)
 
-    @unittest.expectedFailure  # focus helpers pass None into navigation
     def test_empty_tree(self):
-        box = TreeBox(SimpleTree([]))
-        for key in ['right', 'left', '[', ']', 'down', 'up']:
-            self.assertIn(box.keypress((20, 5), key), (None, key))
+        def empty():
+            return CollapsibleTree(SimpleTree([]))
+        trees = {
+            'tree': empty(),
+            'nested': NestedTree(empty()),
+            'empty subtree at root': NestedTree(SimpleTree([(empty(), None)])),
+        }
+        for name, tree in trees.items():
+            with self.subTest(tree=name):
+                box = TreeBox(tree)
+                for key in ['right', 'left', '[', ']', '-', '+', 'C', 'E',
+                            'down', 'up']:
+                    self.assertIn(box.keypress((20, 5), key), (None, key))
+                box.focus_last_child()
+                box.focus_next()
+                box.focus_prev()
+                self.assertIsNone(box.get_focus()[0])
 
