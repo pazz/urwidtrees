@@ -1,6 +1,7 @@
 import unittest
 
-from urwidtrees import ArrowTree, CollapsibleTree, NestedTree, SimpleTree
+from urwidtrees import (ArrowTree, CollapsibleTree, IndentedTree, NestedTree,
+                        SimpleTree)
 
 from .utilities import Node, render_tree
 
@@ -46,6 +47,14 @@ class TestNestedTree(unittest.TestCase):
             '│  └─➤y',
             '└─➤z',
         ])
+
+    def test_indented(self):
+        inner = SimpleTree([(Node('x'), [(Node('y'), None)])])
+        tree = NestedTree(SimpleTree([
+            (Node('R'), [(Node('c'), None), (inner, None)]),
+        ]))
+        self.assertEqual(render_tree(IndentedTree(tree)),
+                         ['R', '  c', '  x', '    y'])
 
 
 class TestNestedCollapse(unittest.TestCase):
