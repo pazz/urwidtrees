@@ -215,6 +215,9 @@ class TestNestedTree(InvariantsMixin, unittest.TestCase):
     def test_navigation(self):
         self.check(self.check_navigation, nesting=1, root_subtree=True)
 
+    def test_depth(self):
+        self.check(self.check_depth, nesting=1, root_subtree=True)
+
     # Known bugs, each on the smallest tree that shows it. Once fixed, the
     # random sweep above should be extended to the shape in question.
 
@@ -247,14 +250,6 @@ class TestNestedTree(InvariantsMixin, unittest.TestCase):
     @unittest.expectedFailure  # root points into the empty subtree
     def test_empty_subtree_at_root(self):
         self.check_fixed([(SimpleTree([]), None), (Node('b'), None)])
-
-    # depth counts levels inside subtrees, as parent_position does, so a
-    # fix that returns the depth in the outmost tree will not pass
-    @unittest.expectedFailure  # depth uses the wrong tree and slice
-    def test_depth(self):
-        inner = SimpleTree([(Node('x'), [(Node('y'), None)])])
-        forest = [(Node('R'), [(Node('c'), None), (inner, None)])]
-        self.check_depth(NestedTree(SimpleTree(forest)), list(flatten(forest)))
 
 
 class TestTreeBox(unittest.TestCase):

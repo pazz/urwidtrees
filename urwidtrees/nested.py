@@ -53,16 +53,17 @@ class NestedTree(Tree):
                 entry = self._lookup_entry(subtree, pos[1:])
         return entry
 
-    def _depth(self, tree, pos, outmost_only=True):
-        depth = self._tree.depth(pos[1:])
-        if not outmost_only:
-            entry = self._tree[pos[0]]
-            if isinstance(entry, Tree) and len(pos) > 1:
-                depth += self._depth(entry, pos[1:], outmost_only=False)
+    def depth(self, pos):
+        """
+        depth of the node at pos, counting the levels of the outer tree and
+        of every subtree on the way: a subtree's roots take the depth of
+        the node that holds the subtree
+        """
+        tree, depth = self._tree, 0
+        for local in pos:
+            depth += tree.depth(local)
+            tree = tree[local]
         return depth
-
-    def depth(self, pos, outmost=True):
-        return self._depth(self._tree, pos)
 
     def __getitem__(self, pos):
         return self._lookup_entry(self._tree, pos)
