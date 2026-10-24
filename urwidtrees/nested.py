@@ -57,6 +57,15 @@ class NestedTree(Tree):
                 entry = self._lookup_entry(subtree, pos[1:])
         return entry
 
+    def _is_root(self, tree, pos):
+        """whether no local position in the nested position pos has a
+        parent, so that pos is a root of tree with its subtrees expanded"""
+        for local in pos:
+            if tree.parent_position(local) is not None:
+                return False
+            tree = tree[local]
+        return True
+
     def depth(self, pos):
         """
         depth of the node at pos, counting the levels of the outer tree and
@@ -288,7 +297,7 @@ class NestedTree(Tree):
                 # no deeper tree has sibling. If inner position is root node
                 # the sibling in the outer tree is a valid candidate
                 subparent = subtree.parent_position(pos[1])
-                if subparent is None:
+                if self._is_root(subtree, pos[1:]):
                     # check if outer tree defines sibling
                     next_sib = tree.next_sibling_position(pos[0])
                     if next_sib is not None:
@@ -298,7 +307,8 @@ class NestedTree(Tree):
                 # of its parent in the outer tree can be seen as candidate for
                 # this position next sibling. Those live in the shadow of the
                 # inner tree and are hidden unless requested otherwise
-                elif subtree.parent_position(subparent) is None and \
+                elif subparent is not None and \
+                        subtree.parent_position(subparent) is None and \
                         self._interpret_covered:
                     # we respect "covered" stuff and inner position has depth 1
                     # get (possibly nested) first child in outer tree
@@ -330,8 +340,7 @@ class NestedTree(Tree):
             else:
                 # no deeper tree has sibling. If inner position is root node
                 # the sibling in the outer tree is a valid candidate
-                subparent = subtree.parent_position(pos[1])
-                if subparent is None:
+                if self._is_root(subtree, pos[1:]):
                     prev_sib = tree.prev_sibling_position(pos[0])
                     if prev_sib is not None:
                         candidate = prev_sib,
