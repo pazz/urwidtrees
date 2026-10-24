@@ -71,7 +71,7 @@ class CollapseMixin(object):
     def __init__(self, is_collapsed=lambda pos: False,
                  **kwargs):
         self._initially_collapsed = is_collapsed
-        self._divergent_positions = []
+        self._divergent_positions = set()
 
     def is_collapsed(self, pos):
         """checks if given position is currently collapsed"""
@@ -102,11 +102,9 @@ class CollapseMixin(object):
     def set_position_collapsed(self, pos, is_collapsed):
         if self.collapsible(pos):
             if bool(self._initially_collapsed(pos)) == bool(is_collapsed):
-                if pos in self._divergent_positions:
-                    self._divergent_positions.remove(pos)
+                self._divergent_positions.discard(pos)
             else:
-                if pos not in self._divergent_positions:
-                    self._divergent_positions.append(pos)
+                self._divergent_positions.add(pos)
 
     def toggle_collapsed(self, pos):
         self.set_position_collapsed(pos, not self.is_collapsed(pos))
@@ -122,7 +120,7 @@ class CollapseMixin(object):
 
     def set_collapsed_all(self, is_collapsed):
         self._initially_collapsed = lambda x: is_collapsed
-        self._divergent_positions = []
+        self._divergent_positions = set()
 
     def expand(self, pos):
         self.set_position_collapsed(pos, False)
