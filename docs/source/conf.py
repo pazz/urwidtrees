@@ -25,10 +25,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 # readthedocs.org hack,
 # needed to use autodocs on their build-servers:
 # http://readthedocs.org/docs/read-the-docs/en/latest/faq.html?highlight=autodocs#where-do-i-need-to-put-my-docs-for-rtd-to-find-it
-try:
-    from unittest.mock import MagicMock
-except ImportError:
-    from mock import Mock as MagicMock
+from unittest.mock import MagicMock
 
 
 class Mock(MagicMock):
