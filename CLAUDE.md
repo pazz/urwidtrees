@@ -16,6 +16,8 @@ make -C docs html                                    # API docs (needs sphinx); 
 
 Tests are unittest-style under `tests/`; `tests/utilities.py` has a small sample tree, a selectable `Node` widget and helpers that render decorated lines to strings. CI (`.github/workflows/test.yml`) runs the suite on Python 3.10 and 3.14 with the latest urwid, and on 3.10 with urwid 2.1.2. The scripts in `docs/examples/` are interactive demos, not checks.
 
+`tests/test_invariants.py` checks navigation invariants on randomly generated trees (seeded, so reproducible) against a flat depth-first model of the same tree. Known bugs are marked `@unittest.expectedFailure` there; a fix removes the marker, which then serves as its regression test.
+
 ## Architecture
 
 The design is MVC with local operations on node *positions* (opaque, hashable handles). A tree never exposes a global structure, only navigation from a position.
