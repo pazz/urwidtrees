@@ -1,9 +1,11 @@
 import unittest
 
-from urwidtrees import (ArrowTree, CollapsibleArrowTree, CollapsibleTree,
-                        TreeBox)
+import urwid
 
-from .utilities import render, small_tree
+from urwidtrees import (ArrowTree, CollapsibleArrowTree, CollapsibleTree,
+                        SimpleTree, TreeBox)
+
+from .utilities import Node, render, small_tree
 
 SIZE = (20, 6)
 
@@ -74,3 +76,30 @@ class TestTreeBox(unittest.TestCase):
         tree.collapse((0, 0))
         box.refresh()
         self.assertEqual(render(box, 10, 6)[1].rstrip(), '├[+]➤a')
+
+    def test_keys_reach_the_focused_row_once(self):
+        received = []
+
+        class Row(Node):
+            def keypress(self, size, key):
+                received.append(key)
+                return key
+
+        box = TreeBox(SimpleTree([(Row('r'), [(Row('a'), None)])]))
+        for key in ['x', 'down', 'right']:
+            box.keypress(SIZE, key)
+        self.assertEqual(received, ['x', 'down', 'right'])
+
+    def test_edit_rows(self):
+        edit = urwid.Edit('', '')
+        box = TreeBox(SimpleTree([(edit, None)]))
+        for key in ['x', 'y', 'left', 'z']:
+            box.keypress(SIZE, key)
+        self.assertEqual(edit.edit_text, 'xzy')
+
+    def test_tree_key_scrolls_focus_into_view(self):
+        children = [(Node('c%d' % i), None) for i in range(30)]
+        box = TreeBox(SimpleTree([(Node('r'), children)]))
+        render(box, 10, 6)
+        self.press(box, 'right', *[']'] * 20)
+        self.assertEqual(render(box, 10, 6)[-1].rstrip(), 'c20')

@@ -149,12 +149,8 @@ class TreeBox(WidgetWrap):
                 self.collapse_all()
             elif key == 'E':
                 self.expand_all()
-            # This is a hack around ListBox misbehaving:
-            # it seems impossible to set the focus without calling keypress as
-            # otherwise the change becomes visible only after the next render()
-            return self._outer_list.keypress(size, None)
-        else:
-            return self._outer_list.keypress(size, key)
+            return None
+        return key
 
     # Collapse operations
     def collapse_focussed(self):
