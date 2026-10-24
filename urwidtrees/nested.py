@@ -27,16 +27,20 @@ class NestedTree(Tree):
             root = root + (rcontent.root,)
         return root
 
-    def _sanitize_position(self, pos, tree=None):
+    def _sanitize_position(self, pos, tree=None, last=False):
         """
         Ensure a position tuple until the result does not
-        point to a :class:`Tree` any more.
+        point to a :class:`Tree` any more, entering subtrees at their first
+        root, or at their last root if `last` is set.
         """
         if pos is not None:
             tree = tree or self._tree
             entry = self._lookup_entry(tree, pos)
             if isinstance(entry, Tree):
-                pos = pos + self._sanitize_position((entry.root,), tree=entry)
+                root = entry.root
+                if last:
+                    root = entry.last_sibling_position(root)
+                pos = pos + self._sanitize_position((root,), entry, last)
         return pos
 
     def __init__(self, tree, interpret_covered=False):
@@ -236,7 +240,7 @@ class NestedTree(Tree):
 
     def last_child_position(self, pos, outmost_only=False):
         childpos = self._last_child_position(self._tree, pos, outmost_only)
-        return self._sanitize_position(childpos, self._tree)
+        return self._sanitize_position(childpos, self._tree, last=True)
 
     def _last_child_position(self, tree, pos, outmost_only=False):
         childpos = None
@@ -349,16 +353,11 @@ class NestedTree(Tree):
             prev_sib = tree.prev_sibling_position(pos[0])
             if prev_sib is not None:
                 candidate = prev_sib,
-        # In case our new candidate points to a Tree, pick its last root node
-        if candidate is not None:
-            entry = self._lookup_entry(tree, candidate)
-            if isinstance(entry, Tree):
-                candidate = (candidate) + (entry.last_sibling_position(entry.root),)
         return candidate
 
     def prev_sibling_position(self, pos):
         candidate = self._prev_sibling_position(self._tree, pos)
-        return self._sanitize_position(candidate, self._tree)
+        return self._sanitize_position(candidate, self._tree, last=True)
 
     def last_decendant(self, pos):
         def lastd(pos):
