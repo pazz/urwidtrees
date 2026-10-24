@@ -44,7 +44,7 @@ class TreeListWalker(urwid.ListWalker):
             It defaults to the value of `Tree.root`.
         """
         self._tree = tree
-        self._focus = focus or tree.root
+        self._focus = tree.root if focus is None else focus
         self.root = tree.root
         self._lines = lru_cache()(self._line)
 

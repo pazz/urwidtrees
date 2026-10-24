@@ -8,6 +8,7 @@ from urwidtrees import (ArrowTree, CollapsibleArrowTree, CollapsibleTree,
                         SimpleTree, TreeBox)
 from urwidtrees.widgets import TreeListWalker
 
+from .test_tree import FlatList
 from .utilities import Node, render, small_tree
 
 SIZE = (20, 6)
@@ -126,3 +127,13 @@ class TestTreeListWalker(unittest.TestCase):
         del walker
         gc.collect()
         self.assertIsNone(ref())
+
+    def test_falsy_focus(self):
+        class Countdown(FlatList):
+            """positions 2, 1, 0 in this order"""
+            root = 2
+            next_sibling_position = FlatList.prev_sibling_position
+
+        walker = TreeListWalker(Countdown([Node('a'), Node('b'), Node('c')]),
+                                focus=0)
+        self.assertEqual(walker.get_focus()[1], 0)
