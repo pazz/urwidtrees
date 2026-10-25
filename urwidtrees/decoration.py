@@ -316,6 +316,11 @@ class ArrowTree(IndentedTree):
         :type walker: Tree
         :param indent: indentation width
         :type indent: int
+        :param childbar_offset: number of columns by which the bars and
+            connectors of a node's children are moved left, away from the
+            column of the node's first character; 1 puts them below the
+            arrow tip
+        :type childbar_offset: int
         """
         IndentedTree.__init__(self, walker, indent)
         self._childbar_offset = childbar_offset
