@@ -170,8 +170,8 @@ class CollapseIconMixin(CollapseMixin):
             columns = []
             if self._icon_frame_left_char is not None:
                 lchar = self._icon_frame_left_char
-                charlen = len(lchar)
                 leftframe = urwid.Text((self._icon_frame_att, lchar))
+                charlen = leftframe.pack()[0]
                 columns.append((charlen, leftframe))
                 width += charlen
 
@@ -179,14 +179,14 @@ class CollapseIconMixin(CollapseMixin):
             # make it selectable (to toggle collapse) if requested
             markup = (charatt, char)
             widget = urwid.Text(markup)
-            charlen = len(char)
+            charlen = widget.pack()[0]
             columns.append((charlen, widget))
             width += charlen
 
             if self._icon_frame_right_char is not None:
                 rchar = self._icon_frame_right_char
-                charlen = len(rchar)
                 rightframe = urwid.Text((self._icon_frame_att, rchar))
+                charlen = rightframe.pack()[0]
                 columns.append((charlen, rightframe))
                 width += charlen
 
@@ -379,7 +379,7 @@ class ArrowTree(IndentedTree):
             txt = urwid.Text(self._arrow_tip_char)
             arrow_tip = urwid.AttrMap(
                 txt, self._arrow_tip_att or self._arrow_att)
-            width = len(self._arrow_tip_char)
+            width = txt.pack()[0]
         return width, arrow_tip
 
     def _construct_first_indent(self, pos):
