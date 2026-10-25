@@ -26,13 +26,12 @@ The design is MVC with local operations on node *positions* (opaque, hashable ha
 - `decoration.py`: `DecoratedTree` wraps another `Tree`, delegating navigation and overriding `__getitem__` via `get_decorated`/`decorate`. Behaviour is layered by wrapping: `CollapseMixin` (hides children by overriding first/last child positions; collapse state is a callable or set via `set_position_collapsed`), `CollapseIconMixin` (adds icons), `CollapsibleTree`, `IndentedTree`, `ArrowTree` and combinations. Collapsing is treated as decoration, not part of the data tree.
 - `nested.py`: `NestedTree` embeds trees as nodes of other trees, so positions become nested tuples and navigation has to recurse into sub-trees (`outmost_only` and `interpret_covered` flags affect this).
 - `widgets.py`: `TreeListWalker` adapts a `Tree` to an `urwid.ListWalker` (with a cache cleared by `clear_cache`); `TreeBox` is the `WidgetWrap` around `urwid.ListBox` that handles key bindings (collapse, expand, focus parent/child/sibling).
-- `lru_cache.py`: backport of `functools.lru_cache` for old Pythons.
 
 When adding a tree feature, implement it as a `DecoratedTree` subclass or mixin and compose it, rather than editing `Tree` or `SimpleTree`. Check that `NestedTree` still behaves, since it re-implements navigation instead of inheriting it.
 
 ## Change policy
 
-- `main` is the branch for AI-assisted work; `master` is the old human-only line (last release 1.0.5) and stays untouched. One concern per branch off `main`, one PR each into `main`. Ask before pushing.
+- `main` is the only branch; the tag 1.0.5 marks the last release before AI-assisted work. One concern per branch off `main`, one PR each into `main`. Ask before pushing.
 - Small is beautiful: the smallest clean diff that solves the problem. Prefer deletion, stdlib and existing helpers; no speculative parameters, layers or abstractions.
 - Bug fixes come with a regression test that fails without the fix.
 - Keep the public API (everything exported from `urwidtrees/__init__.py`, constructor keyword arguments, `TreeBox` key bindings) backwards compatible unless the change says otherwise.
