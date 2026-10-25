@@ -168,7 +168,6 @@ class CollapseIconMixin(CollapseMixin):
                  icon_frame_att=None,
                  icon_focussed_att=None,
                  **kwargs):
-        """TODO: docstrings"""
         CollapseMixin.__init__(self, is_collapsed, **kwargs)
         self._icon_collapsed_char = icon_collapsed_char
         self._icon_expanded_char = icon_expanded_char
@@ -180,40 +179,21 @@ class CollapseIconMixin(CollapseMixin):
         self._icon_focussed_att = icon_focussed_att
 
     def _construct_collapse_icon(self, pos):
-        width = 0
-        widget = None
         char = self._icon_expanded_char
         charatt = self._icon_expanded_att
         if self.is_collapsed(pos):
             char = self._icon_collapsed_char
             charatt = self._icon_collapsed_att
-        if char is not None:
-
-            columns = []
-            if self._icon_frame_left_char is not None:
-                lchar = self._icon_frame_left_char
-                leftframe = urwid.Text((self._icon_frame_att, lchar))
-                charlen = leftframe.pack()[0]
-                columns.append((charlen, leftframe))
-                width += charlen
-
-            # next we build out icon widget: we feed all markups to a Text,
-            # make it selectable (to toggle collapse) if requested
-            markup = (charatt, char)
-            widget = urwid.Text(markup)
-            charlen = widget.pack()[0]
-            columns.append((charlen, widget))
-            width += charlen
-
-            if self._icon_frame_right_char is not None:
-                rchar = self._icon_frame_right_char
-                rightframe = urwid.Text((self._icon_frame_att, rchar))
-                charlen = rightframe.pack()[0]
-                columns.append((charlen, rightframe))
-                width += charlen
-
-            widget = urwid.Columns(columns)
-        return width, widget
+        if char is None:
+            return 0, None
+        columns = []
+        for att, c in [(self._icon_frame_att, self._icon_frame_left_char),
+                       (charatt, char),
+                       (self._icon_frame_att, self._icon_frame_right_char)]:
+            if c is not None:
+                text = urwid.Text((att, c))
+                columns.append((text.pack()[0], text))
+        return sum(w for w, _ in columns), urwid.Columns(columns)
 
 
 class CollapsibleTree(CollapseMixin, DecoratedTree):
@@ -239,8 +219,7 @@ class IndentedTree(DecoratedTree):
         indent = self._tree.depth(pos) * self._indent
         cols = [(indent, urwid.SolidFill(' ')), widget]
         # construct a Columns, defining all spacer as Box widgets
-        line = urwid.Columns(cols, box_columns=range(len(cols))[:-1])
-        return line
+        return urwid.Columns(cols, box_columns=range(len(cols))[:-1])
 
 
 class CollapsibleIndentedTree(CollapseIconMixin, IndentedTree):
@@ -270,16 +249,14 @@ class CollapsibleIndentedTree(CollapseIconMixin, IndentedTree):
         positions. The result is a urwid.Columns widget.
         """
         void = urwid.SolidFill(' ')
-        line = None
         cols = []
         depth = self._tree.depth(pos)
 
         # add spacer filling all but the last indent
         if depth > 0:
-            cols.append((depth * self._indent, void)),  # spacer
+            cols.append((depth * self._indent, void))  # spacer
 
         # construct last indent
-        # TODO
         iwidth, icon = self._construct_collapse_icon(pos)
         available_space = self._indent
         firstindent_width = self._icon_offset + iwidth
@@ -305,9 +282,7 @@ class CollapsibleIndentedTree(CollapseIconMixin, IndentedTree):
 
         cols.append(widget)  # original widget ]
         # construct a Columns, defining all spacer as Box widgets
-        line = urwid.Columns(cols, box_columns=range(len(cols))[:-1])
-
-        return line
+        return urwid.Columns(cols, box_columns=range(len(cols))[:-1])
 
 
 class ArrowTree(IndentedTree):
@@ -396,18 +371,14 @@ class ArrowTree(IndentedTree):
         arrow tip
         """
         # connector symbol, either L or |- shaped.
-        connectorw = None
-        connector = None
         if self._has_next_sibling(pos):  # |- shaped
-            if self._arrow_connector_tchar is not None:
-                connectorw = urwid.Text(self._arrow_connector_tchar)
+            char = self._arrow_connector_tchar
         else:  # L shaped
-            if self._arrow_connector_lchar is not None:
-                connectorw = urwid.Text(self._arrow_connector_lchar)
-        if connectorw is not None:
-            att = self._arrow_connector_att or self._arrow_att
-            connector = urwid.AttrMap(connectorw, att)
-        return connector
+            char = self._arrow_connector_lchar
+        if char is None:
+            return None
+        att = self._arrow_connector_att or self._arrow_att
+        return urwid.AttrMap(urwid.Text(char), att)
 
     def _construct_arrow_tip(self, pos):
         """returns arrow tip as (width, widget)"""
@@ -472,38 +443,30 @@ class ArrowTree(IndentedTree):
         decoration columns depending on the existence of parent and sibling
         positions. The result is a urwid.Columns widget.
         """
-        line = None
-        if pos is not None:
-            original_widget = widget
-            cols = self._construct_spacer(pos, [])
+        if pos is None:
+            return None
+        cols = self._construct_spacer(pos, [])
 
-            # Construct arrow leading from parent here,
-            # if we have a parent and indentation is turned on
-            if self._indent > 0:
-                if is_first:
-                    indent = self._construct_first_indent(pos)
-                    if indent is not None:
-                        cols = cols + indent
+        # Construct arrow leading from parent here,
+        # if we have a parent and indentation is turned on
+        if self._indent > 0:
+            if is_first:
+                cols += self._construct_first_indent(pos)
+            elif self._tree.parent_position(pos) is not None:
+                void = urwid.AttrMap(urwid.SolidFill(' '), self._arrow_att)
+                if self._has_next_sibling(pos):
+                    barw = urwid.SolidFill(self._arrow_vbar_char)
+                    bar = urwid.AttrMap(
+                        barw, self._arrow_vbar_att or self._arrow_att)
+                    cols.append((1, bar))
+                    cols.append((self._indent - 1, void))
                 else:
-                    parent = self._tree.parent_position(pos)
-                    if self._indent > 0 and parent is not None:
-                        draw_vbar = self._has_next_sibling(pos)
-                        void = urwid.AttrMap(urwid.SolidFill(' '),
-                                             self._arrow_att)
-                        if draw_vbar:
-                            barw = urwid.SolidFill(self._arrow_vbar_char)
-                            bar = urwid.AttrMap(
-                                barw, self._arrow_vbar_att or self._arrow_att)
-                            cols.append((1, bar))
-                            cols.append((self._indent - 1, void))
-                        else:
-                            cols.append((self._indent, void))
+                    cols.append((self._indent, void))
 
-            # add the original widget for this line
-            cols.append(original_widget)
-            # construct a Columns, defining all spacer as Box widgets
-            line = urwid.Columns(cols, box_columns=range(len(cols))[:-1])
-        return line
+        # add the original widget for this line
+        cols.append(widget)
+        # construct a Columns, defining all spacer as Box widgets
+        return urwid.Columns(cols, box_columns=range(len(cols))[:-1])
 
 
 class CollapsibleArrowTree(CollapseIconMixin, ArrowTree):
