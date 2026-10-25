@@ -27,7 +27,6 @@ if __name__ == "__main__":
                                    is_collapsed=if_grandchild,
                                    icon_focussed_att='focus',
                                    # indent=6,
-                                   # childbar_offset=1,
                                    # icon_frame_left_char=None,
                                    # icon_frame_right_char=None,
                                    # icon_expanded_char='-',
