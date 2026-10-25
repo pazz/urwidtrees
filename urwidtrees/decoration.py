@@ -1,5 +1,7 @@
 # Copyright (C) 2013  Patrick Totzke <patricktotzke@gmail.com>
 # This file is released under the GNU GPL, version 3 or a later revision.
+import inspect
+
 import urwid
 
 from .tree import Tree, SimpleTree
@@ -78,8 +80,7 @@ class CollapseMixin(object):
     The mixin reads the wrapped tree from `self._tree`, so mix it into a
     :class:`DecoratedTree`.
     """
-    def __init__(self, is_collapsed=lambda pos: False,
-                 **kwargs):
+    def __init__(self, is_collapsed=lambda pos: False):
         self._initially_collapsed = is_collapsed
         self._divergent_positions = set()
 
@@ -309,7 +310,7 @@ class ArrowTree(IndentedTree):
                  arrow_att=None,
                  arrow_connector_tchar=u'\u251c',
                  arrow_connector_lchar=u'\u2514',
-                 arrow_connector_att=None, **kwargs):
+                 arrow_connector_att=None):
         """
         :param walker: tree of widgets to be displayed
         :type walker: Tree
@@ -476,7 +477,10 @@ class CollapsibleArrowTree(CollapseIconMixin, ArrowTree):
     """Arrow-decoration that allows collapsing subtrees"""
     def __init__(self, treelistwalker, icon_offset=0, indent=5, **kwargs):
         self._icon_offset = icon_offset
-        ArrowTree.__init__(self, treelistwalker, indent, **kwargs)
+        arrow_params = inspect.signature(ArrowTree.__init__).parameters
+        arrow_kwargs = {k: kwargs.pop(k) for k in list(kwargs)
+                        if k in arrow_params}
+        ArrowTree.__init__(self, treelistwalker, indent, **arrow_kwargs)
         CollapseIconMixin.__init__(self, **kwargs)
 
     def _construct_arrow_tip(self, pos):

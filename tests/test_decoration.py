@@ -95,6 +95,21 @@ class TestWideGlyphs(unittest.TestCase):
 
 class TestDecorations(unittest.TestCase):
 
+    def test_unknown_keyword_raises(self):
+        for cls in [DecoratedTree, CollapsibleTree, IndentedTree,
+                    CollapsibleIndentedTree, ArrowTree, CollapsibleArrowTree]:
+            with self.subTest(cls=cls.__name__):
+                with self.assertRaises(TypeError):
+                    cls(small_tree(), indnet=8)
+
+    def test_keywords_reach_both_parents(self):
+        t = CollapsibleArrowTree(small_tree(), arrow_tip_char='>',
+                                 icon_expanded_char='o',
+                                 is_collapsed=lambda pos: pos == (0, 0))
+        self.assertEqual(render_tree(t)[1], '├[+]>a')
+        t.expand((0, 0))
+        self.assertEqual(render_tree(t)[1], '├[o]>a')
+
     def test_indented(self):
         self.assertEqual(render_tree(IndentedTree(small_tree())), [
             'r',
