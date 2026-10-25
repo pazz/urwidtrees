@@ -4,10 +4,10 @@ import urwid
 
 from urwidtrees import (ArrowTree, CollapsibleArrowTree,
                         CollapsibleIndentedTree, CollapsibleTree,
-                        DecoratedTree, IndentedTree)
+                        DecoratedTree, IndentedTree, SimpleTree)
 from urwidtrees.decoration import NoSpaceError
 
-from .utilities import render, render_tree, small_tree
+from .utilities import Node, render, render_tree, small_tree
 
 ALL = [(0,), (0, 0), (0, 0, 0), (0, 0, 1), (0, 1)]
 
@@ -164,7 +164,7 @@ class TestDecorations(unittest.TestCase):
     def test_collapsible_arrows(self):
         t = CollapsibleArrowTree(small_tree())
         self.assertEqual(render_tree(t), [
-            'r',
+            '[-]r',
             '├[-]➤a',
             '│    ├───➤a1',
             '│    └───➤a2',
@@ -172,10 +172,22 @@ class TestDecorations(unittest.TestCase):
         ])
         t.collapse((0, 0))
         self.assertEqual(render_tree(t), [
-            'r',
+            '[-]r',
             '├[+]➤a',
             '└───➤b',
         ])
+        t.collapse((0,))
+        self.assertEqual(render_tree(t), ['[+]r'])
+
+    def test_collapsible_arrows_top_level(self):
+        t = CollapsibleArrowTree(SimpleTree([
+            (Node('r\nr2'), [(Node('a'), None)]),
+            (Node('leaf'), None),
+        ]))
+        self.assertEqual([render(t.get_decorated(p), 8) for p in t.positions()],
+                         [['[-]r    ', '   r2   '], ['└───➤a  '], ['   leaf ']])
+        self.assertEqual(render_tree(CollapsibleArrowTree(small_tree(),
+                                                          indent=0))[0], 'r')
 
     def test_arrows_without_bars(self):
         t = ArrowTree(small_tree(), arrow_hbar_char=None, arrow_vbar_char=None)
@@ -196,7 +208,7 @@ class TestDecorations(unittest.TestCase):
     def test_collapsible_arrows_with_icon_offset(self):
         t = CollapsibleArrowTree(small_tree(), icon_offset=2, indent=8)
         self.assertEqual(render_tree(t, 20), [
-            'r',
+            '[-]r',
             '├─[-]──➤a',
             '│       ├──────➤a1',
             '│       └──────➤a2',
