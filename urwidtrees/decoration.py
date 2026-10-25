@@ -483,6 +483,20 @@ class CollapsibleArrowTree(CollapseIconMixin, ArrowTree):
         ArrowTree.__init__(self, treelistwalker, indent, **arrow_kwargs)
         CollapseIconMixin.__init__(self, **kwargs)
 
+    def decorate(self, pos, widget, is_first=True):
+        # top-level nodes have no arrow to carry the icon: put it in front,
+        # and pad top-level leaves by as much so that siblings line up;
+        # without indentation there are no arrows and no icons at all
+        if self._indent > 0 and self._tree.parent_position(pos) is None:
+            iwidth, icon = self._construct_collapse_icon(pos)
+            if icon is not None:
+                cell = void = urwid.SolidFill(' ')
+                if is_first and self.collapsible(pos):
+                    cell = urwid.Pile([('pack', icon), void])
+                widget = urwid.Columns([(iwidth, cell), widget],
+                                       box_columns=[0])
+        return ArrowTree.decorate(self, pos, widget, is_first)
+
     def _construct_arrow_tip(self, pos):
 
         cols = []
