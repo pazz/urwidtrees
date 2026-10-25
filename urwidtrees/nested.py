@@ -55,13 +55,6 @@ class NestedTree(Tree):
         self._tree = tree
         self._interpret_covered = interpret_covered
 
-    def _lookup_entry(self, tree, pos):
-        entry = tree[pos[0]]
-        if len(pos) > 1 and isinstance(entry, Tree):
-            subtree = entry
-            entry = self._lookup_entry(subtree, pos[1:])
-        return entry
-
     def depth(self, pos):
         """
         depth of the node at pos, counting the levels of the outer tree and
@@ -75,7 +68,12 @@ class NestedTree(Tree):
         return depth
 
     def __getitem__(self, pos):
-        return self._lookup_entry(self._tree, pos)
+        entry = self._tree[pos[0]]
+        for local in pos[1:]:
+            if not isinstance(entry, Tree):
+                break
+            entry = entry[local]
+        return entry
 
     # DecoratedTree API
     def _get_decorated_entry(self, pos, widget=None, is_first=True):
@@ -163,35 +161,15 @@ class NestedTree(Tree):
     # Tree API
     ################################################
     def parent_position(self, pos):
-        candidate_pos = self._parent_position(self._tree, pos)
-        # return sanitized path (ensure it points to content, not a subtree)
-        return self._sanitize_position(candidate_pos)
-
-    def _parent_position(self, tree, pos):
-        candidate_pos = None
-        if len(pos) > 1:
-            # get the deepest subtree
-            subtree_pos = pos[:-1]
-            subtree = self._lookup_entry(tree, subtree_pos)
-            # get parent for our position in this subtree
-            least_pos = pos[-1]
-            subparent_pos = subtree.parent_position(least_pos)
-            if subparent_pos is not None:
-                # in case there is one, we are done, the position we look for
-                # is the path up to the subtree plus the local parent position.
-                candidate_pos = subtree_pos + (subparent_pos,)
-            else:
-                # otherwise we recur and look for subtree's parent in the next
-                # outer tree
-                candidate_pos = self._parent_position(self._tree, subtree_pos)
-        else:
-            # there is only one position in the path, we return its parent in
-            # the outmost tree
-            outer_parent = self._tree.parent_position(pos[0])
-            if outer_parent is not None:
-                # result needs to be valid position (tuple of local positions)
-                candidate_pos = outer_parent,
-        return candidate_pos
+        # the parent in the innermost tree that has one, from inside out:
+        # a subtree's roots have the parent of the node holding the subtree
+        trees = self._trees(pos)
+        for i in range(len(pos) - 1, -1, -1):
+            parent = trees[i].parent_position(pos[i])
+            if parent is not None:
+                # ensure it points to content, not a subtree
+                return self._sanitize_position(pos[:i] + (parent,))
+        return None
 
     # Children of a position: those of its node in the innermost tree, and,
     # with interpret_covered, those of the node holding that tree in the

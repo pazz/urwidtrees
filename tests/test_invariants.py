@@ -278,6 +278,23 @@ class TestNestedTree(InvariantsMixin, unittest.TestCase):
         inner = SimpleTree([(Node('x'), None)])
         self.check_fixed([(SimpleTree([(inner, None)]), None)])
 
+    def test_deep_nesting(self):
+        inner = SimpleTree([(Node('x'), [(Node('y'), None)])])
+        for _ in range(1100):
+            inner = SimpleTree([(inner, None)])
+        tree = NestedTree(SimpleTree([(Node('R'), [(inner, None),
+                                                   (Node('z'), None)])]))
+        positions = list(tree.positions())
+        self.assertEqual([tree[p].text for p in positions],
+                         ['R', 'x', 'y', 'z'])
+        self.assertEqual(list(tree.positions(reverse=True)), positions[::-1])
+        r, x, y, z = positions
+        self.assertEqual(tree.parent_position(y), x)
+        self.assertEqual(tree.parent_position(x), r)
+        self.assertEqual(tree.next_sibling_position(x), z)
+        self.assertEqual(tree.prev_sibling_position(z), x)
+        self.assertEqual(tree.depth(y), 2)
+
     def test_empty(self):
         tree = NestedTree(SimpleTree([]))
         self.assertIsNone(tree.root)
