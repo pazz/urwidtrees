@@ -74,6 +74,9 @@ class CollapseMixin(object):
     return `None` if the given position is considered collapsed. We use a
     (given) callable `is_collapsed` that accepts positions and returns a
     truth value to determine which node is considered collapsed.
+
+    The mixin reads the wrapped tree from `self._tree`, so mix it into a
+    :class:`DecoratedTree`.
     """
     def __init__(self, is_collapsed=lambda pos: False,
                  **kwargs):
@@ -88,10 +91,6 @@ class CollapseMixin(object):
         return collapsed
 
     # implement functionality by overwriting local position transformations
-
-    # TODO: ATM this assumes we are in a wrapper: it uses self._tree.
-    # This is not necessarily true, for example for subclasses of SimpleTree!
-    # maybe define this whole class as a wrapper?
 
     def last_child_position(self, pos):
         if self.is_collapsed(pos):
