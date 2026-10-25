@@ -19,7 +19,14 @@ class DecoratedTree(Tree):
             # do we need this?
             content = SimpleTree(content)
         self._tree = content
-        self.root = self._tree.root
+
+    @property
+    def root(self):
+        return self._tree.root
+
+    @root.setter
+    def root(self, pos):
+        self._tree.root = pos
 
     def get_decorated(self, pos):
         """
