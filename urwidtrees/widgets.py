@@ -5,7 +5,6 @@ from functools import lru_cache
 
 import urwid
 from urwid import WidgetWrap, ListBox
-from urwid import signals
 
 from .decoration import DecoratedTree, CollapseMixin
 from .nested import NestedTree
@@ -142,7 +141,6 @@ class TreeBox(WidgetWrap):
             if visible != focuspos:
                 self.set_focus(visible)
         self._walker.clear_cache()
-        signals.emit_signal(self._walker, "modified")
 
     _tree_keys = {
         'left': 'focus_parent',
@@ -177,7 +175,6 @@ class TreeBox(WidgetWrap):
         focuspos = self._focus_position()
         if implementsCollapseAPI(self._tree) and focuspos is not None:
             self._tree.collapse(focuspos)
-            self._walker.clear_cache()
             self.refresh()
 
     def expand_focussed(self):
@@ -188,7 +185,6 @@ class TreeBox(WidgetWrap):
         focuspos = self._focus_position()
         if implementsCollapseAPI(self._tree) and focuspos is not None:
             self._tree.expand(focuspos)
-            self._walker.clear_cache()
             self.refresh()
 
     def collapse_all(self):
@@ -206,7 +202,6 @@ class TreeBox(WidgetWrap):
         """
         if implementsCollapseAPI(self._tree):
             self._tree.expand_all()
-            self._walker.clear_cache()
             self.refresh()
 
     # Tree based focus movement
