@@ -20,5 +20,5 @@ See the `docs/` subdirectory for autogenetated API docs.
 [<img src="docs/examples/example3.png" width="45%">](docs/examples/example3.collapse.py)
 [<img src="docs/examples/example5.png" width="45%">](docs/examples/example5.nested.py)
 
-[rtfd-img]: https://readthedocs.org/projects/urwidtrees/badge/
-[rtfd]: https://urwidtrees.readthedocs.org/en/latest/
+[rtfd-img]: https://img.shields.io/readthedocs/urwidtrees/latest
+[rtfd]: https://urwidtrees.readthedocs.io/en/latest/
