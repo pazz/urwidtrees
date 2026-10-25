@@ -98,33 +98,30 @@ class NestedTree(Tree):
         return self._get_decorated_entry(pos, widget, is_first)
 
     # Collapse API
-    def _get_subtree_for(self, pos):
-        """returns Tree that manages pos[-1]"""
-        return self._trees(pos)[-1]
+    def _on_subtree(self, pos, method, default=None):
+        """
+        call `method` with pos[-1] on the tree that manages it, if that tree
+        can collapse; otherwise return `default`. A NestedTree nested
+        directly in another hands on to its own managing tree.
+        """
+        tree = self
+        while isinstance(tree, NestedTree):
+            tree, pos = tree._trees(pos)[-1], pos[-1]
+        if isinstance(tree, CollapseMixin):
+            return getattr(tree, method)(pos)
+        return default
 
     def collapsible(self, pos):
-        res = False
-        subtree = self._get_subtree_for(pos)
-        if isinstance(subtree, (CollapseMixin, NestedTree)):
-            res = subtree.collapsible(pos[-1])
-        return res
+        return self._on_subtree(pos, 'collapsible', False)
 
     def is_collapsed(self, pos):
-        res = False
-        subtree = self._get_subtree_for(pos)
-        if isinstance(subtree, (CollapseMixin, NestedTree)):
-            res = subtree.is_collapsed(pos[-1])
-        return res
+        return self._on_subtree(pos, 'is_collapsed', False)
 
     def toggle_collapsed(self, pos):
-        subtree = self._get_subtree_for(pos)
-        if isinstance(subtree, (CollapseMixin, NestedTree)):
-            subtree.toggle_collapsed(pos[-1])
+        self._on_subtree(pos, 'toggle_collapsed')
 
     def collapse(self, pos):
-        subtree = self._get_subtree_for(pos)
-        if isinstance(subtree, (CollapseMixin, NestedTree)):
-            subtree.collapse(pos[-1])
+        self._on_subtree(pos, 'collapse')
 
     def collapse_all(self):
         for tree in self._expand_all():
@@ -132,9 +129,7 @@ class NestedTree(Tree):
                 tree.collapse_all()
 
     def expand(self, pos):
-        subtree = self._get_subtree_for(pos)
-        if isinstance(subtree, (CollapseMixin, NestedTree)):
-            subtree.expand(pos[-1])
+        self._on_subtree(pos, 'expand')
 
     def expand_all(self):
         self._expand_all()
