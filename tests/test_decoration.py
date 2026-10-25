@@ -1,10 +1,12 @@
 import unittest
 
+import urwid
+
 from urwidtrees import (ArrowTree, CollapsibleArrowTree,
                         CollapsibleIndentedTree, CollapsibleTree,
                         DecoratedTree, IndentedTree)
 
-from .utilities import small_tree, render_tree
+from .utilities import render, render_tree, small_tree
 
 ALL = [(0,), (0, 0), (0, 0, 0), (0, 0, 1), (0, 1)]
 
@@ -99,6 +101,26 @@ class TestDecorations(unittest.TestCase):
             '│  ├─➤a1',
             '│  └─➤a2',
             '└─➤b',
+        ])
+
+    def test_arrows_with_childbar_offset(self):
+        t = ArrowTree(small_tree(), childbar_offset=1, indent=4)
+        self.assertEqual(render_tree(t), [
+            'r',
+            '├──➤a',
+            '│  ├──➤a1',
+            '│  └──➤a2',
+            '└──➤b',
+        ])
+        # continuation lines of multi-line nodes keep the same columns
+        rest = [render(t.decorate(p, urwid.Text(t[p].text), is_first=False),
+                       16)[0].rstrip() for p in t.positions()]
+        self.assertEqual(rest, [
+            'r',
+            '│   a',
+            '│  │   a1',
+            '│      a2',
+            '    b',
         ])
 
     def test_collapsible_arrows(self):

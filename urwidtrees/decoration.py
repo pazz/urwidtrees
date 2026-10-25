@@ -453,16 +453,12 @@ class ArrowTree(IndentedTree):
                         draw_vbar = parent_sib is not None
                         void = urwid.AttrMap(urwid.SolidFill(' '),
                                              self._arrow_att)
-                        if self._childbar_offset > 0:
-                            cols.append((self._childbar_offset, void))
                         if draw_vbar:
                             barw = urwid.SolidFill(self._arrow_vbar_char)
                             bar = urwid.AttrMap(
                                 barw, self._arrow_vbar_att or self._arrow_att)
-                            rspace_width = self._indent - \
-                                1 - self._childbar_offset
                             cols.append((1, bar))
-                            cols.append((rspace_width, void))
+                            cols.append((self._indent - 1, void))
                         else:
                             cols.append((self._indent, void))
 
