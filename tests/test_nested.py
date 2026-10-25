@@ -161,6 +161,17 @@ class TestNestedCollapse(unittest.TestCase):
         tree.expand_all()
         self.assertEqual(len(list(tree.positions())), 4)
 
+    def test_collapse_deeply_nested(self):
+        # no recursion per NestedTree wrapped directly in another
+        tree, x = self.inner, (0,)
+        for _ in range(1100):
+            tree, x = NestedTree(tree), (x,)
+        self.assertTrue(tree.collapsible(x))
+        tree.collapse(x)
+        self.assertTrue(self.inner.is_collapsed((0,)))
+        tree.expand(x)
+        self.assertFalse(tree.is_collapsed(x))
+
     def test_collapse_all_wide(self):
         outer = CollapsibleTree(SimpleTree([(Node('R'), [
             (Node(str(i)), [(Node('c'), None)]) for i in range(1500)])]))
