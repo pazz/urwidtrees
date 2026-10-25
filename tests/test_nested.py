@@ -77,3 +77,24 @@ class TestNestedCollapse(unittest.TestCase):
         self.assertTrue(self.inner.is_collapsed((0,)))
         self.tree.toggle_collapsed(self.x)
         self.assertFalse(self.inner.is_collapsed((0,)))
+
+    def test_root_subtree(self):
+        """one-element positions belong to the outer tree, also when its
+        root is a subtree"""
+        inner = CollapsibleTree(SimpleTree([(Node('x'), [(Node('y'), None)])]))
+        outer = CollapsibleTree(SimpleTree([
+            (inner, None), (Node('b'), [(Node('c'), None)])]))
+        tree = NestedTree(outer)
+        b = ((1,),)
+        self.assertTrue(tree.collapsible(b))
+        tree.collapse(b)
+        self.assertTrue(tree.is_collapsed(b))
+        self.assertTrue(outer.is_collapsed((1,)))
+        self.assertFalse(inner.is_collapsed((0,)))
+        self.assertEqual(list(tree.positions()),
+                         [((0,), (0,)), ((0,), (0, 0)), b])
+        tree.toggle_collapsed(b)
+        self.assertFalse(outer.is_collapsed((1,)))
+        tree.collapse(b)
+        tree.expand(b)
+        self.assertFalse(tree.is_collapsed(b))

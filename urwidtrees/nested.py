@@ -56,13 +56,10 @@ class NestedTree(Tree):
         self._interpret_covered = interpret_covered
 
     def _lookup_entry(self, tree, pos):
-        if len(pos) == 0:
-            entry = tree[tree.root]
-        else:
-            entry = tree[pos[0]]
-            if len(pos) > 1 and isinstance(entry, Tree):
-                subtree = entry
-                entry = self._lookup_entry(subtree, pos[1:])
+        entry = tree[pos[0]]
+        if len(pos) > 1 and isinstance(entry, Tree):
+            subtree = entry
+            entry = self._lookup_entry(subtree, pos[1:])
         return entry
 
     def depth(self, pos):
@@ -108,11 +105,7 @@ class NestedTree(Tree):
     # Collapse API
     def _get_subtree_for(self, pos):
         """returns Tree that manages pos[-1]"""
-        res = self._tree
-        candidate = self._lookup_entry(self._tree, pos[:-1])
-        if isinstance(candidate, Tree):
-            res = candidate
-        return res
+        return self._trees(pos)[-1]
 
     def collapsible(self, pos):
         res = False
