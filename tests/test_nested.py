@@ -3,7 +3,7 @@ import unittest
 from urwidtrees import (ArrowTree, CollapsibleTree, IndentedTree, NestedTree,
                         SimpleTree)
 
-from .utilities import Node, render_tree
+from .utilities import Node, render, render_tree
 
 
 def nested_tree():
@@ -55,6 +55,33 @@ class TestNestedTree(unittest.TestCase):
         ]))
         self.assertEqual(render_tree(IndentedTree(tree)),
                          ['R', '  c', '  x', '    y'])
+
+
+    def test_decoration_two_levels(self):
+        inner = ArrowTree(SimpleTree([(Node('x'), [(Node('y'), None)])]))
+        middle = ArrowTree(SimpleTree([(inner, None)]))
+        outer = ArrowTree(SimpleTree([
+            (Node('R'), [(Node('c'), None), (middle, None), (Node('z'), None)]),
+        ]))
+        self.assertEqual(render_tree(NestedTree(outer), 20), [
+            'R',
+            '├─➤c',
+            '├─➤x',
+            '│  └─➤y',
+            '└─➤z',
+        ])
+
+    def test_decorate_continuation_line(self):
+        """is_first=False decorates like the wrapped tree does"""
+        arrows = self.tree._tree
+        for pos in self.tree.positions():
+            with self.subTest(pos=pos):
+                line = render(self.tree.decorate(pos, Node('m'), False), 20)
+                if len(pos) == 1:
+                    expected = render(arrows.decorate(pos[0], Node('m'), False),
+                                      20)
+                    self.assertEqual(line, expected)
+                self.assertNotIn('➤', line[0])
 
 
 class TestNestedCollapse(unittest.TestCase):

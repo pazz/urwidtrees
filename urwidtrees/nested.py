@@ -78,29 +78,26 @@ class NestedTree(Tree):
         return self._lookup_entry(self._tree, pos)
 
     # DecoratedTree API
-    def _get_decorated_entry(self, tree, pos, widget=None, is_first=True):
-        entry = tree[pos[0]]
+    def _get_decorated_entry(self, pos, widget=None, is_first=True):
+        entry = self[pos]
         if entry is None:
             return None
-        if len(pos) > 1 and isinstance(entry, Tree):
-            subtree = entry
-            entry = self._get_decorated_entry(
-                subtree, pos[1:], widget, is_first)
-        else:
-            entry = widget or entry
-        if isinstance(tree, (DecoratedTree, NestedTree)):  # has decorate-API
-            isf = len(pos) < 2
-            if not isf and isinstance(tree[pos[0]], Tree):
-                isf = (tree[pos[0]].parent_position(pos[1])
-                       is None) or not is_first
-            entry = tree.decorate(pos[0], entry, is_first=isf)
+        entry = widget or entry
+        trees = self._trees(pos)
+        # decorate from the innermost tree outwards; a subtree takes the
+        # place of one line in the tree around it, which starts at the
+        # subtree's root
+        for i in range(len(pos) - 1, -1, -1):
+            if isinstance(trees[i], (DecoratedTree, NestedTree)):
+                entry = trees[i].decorate(pos[i], entry, is_first=is_first)
+            is_first = is_first and trees[i].parent_position(pos[i]) is None
         return entry
 
     def get_decorated(self, pos):
-        return self._get_decorated_entry(self._tree, pos)
+        return self._get_decorated_entry(pos)
 
     def decorate(self, pos, widget, is_first=True):
-        return self._get_decorated_entry(self._tree, pos, widget, is_first)
+        return self._get_decorated_entry(pos, widget, is_first)
 
     # Collapse API
     def _get_subtree_for(self, pos):
