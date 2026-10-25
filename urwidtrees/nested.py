@@ -23,21 +23,28 @@ class NestedTree(Tree):
             return None
         return self._sanitize_position((self._tree.root,))
 
-    def _sanitize_position(self, pos, tree=None, last=False):
+    def _sanitize_position(self, pos, last=False):
         """
         Ensure a position tuple until the result does not
         point to a :class:`Tree` any more, entering subtrees at their first
-        root, or at their last root if `last` is set.
+        root, or at their last root if `last` is set. An empty subtree takes
+        no place, so a position pointing at one moves on to its next
+        sibling, or its previous one if `last` is set.
         """
-        if pos is not None:
-            tree = tree or self._tree
-            entry = self._lookup_entry(tree, pos)
-            if isinstance(entry, Tree):
-                root = entry.root
+        skip = self._prev_sibling_position if last else \
+            self._next_sibling_position
+        while pos is not None:
+            entry = self[pos]
+            if not isinstance(entry, Tree):
+                return pos
+            root = entry.root
+            if root is None:
+                pos = skip(self._tree, pos)
+            else:
                 if last:
                     root = entry.last_sibling_position(root)
-                pos = pos + self._sanitize_position((root,), entry, last)
-        return pos
+                pos = pos + (root,)
+        return None
 
     def __init__(self, tree, interpret_covered=False):
         self._tree = tree
@@ -216,7 +223,7 @@ class NestedTree(Tree):
 
     def first_child_position(self, pos, outmost_only=False):
         childpos = self._first_child_position(self._tree, pos, outmost_only)
-        return self._sanitize_position(childpos, self._tree)
+        return self._sanitize_position(childpos)
 
     def _first_child_position(self, tree, pos, outmost_only=False):
         childpos = None
@@ -246,7 +253,7 @@ class NestedTree(Tree):
 
     def last_child_position(self, pos, outmost_only=False):
         childpos = self._last_child_position(self._tree, pos, outmost_only)
-        return self._sanitize_position(childpos, self._tree, last=True)
+        return self._sanitize_position(childpos, last=True)
 
     def _last_child_position(self, tree, pos, outmost_only=False):
         childpos = None
@@ -320,7 +327,7 @@ class NestedTree(Tree):
 
     def next_sibling_position(self, pos):
         candidate = self._next_sibling_position(self._tree, pos)
-        return self._sanitize_position(candidate, self._tree)
+        return self._sanitize_position(candidate)
 
     def _prev_sibling_position(self, tree, pos):
         candidate = None
@@ -363,7 +370,7 @@ class NestedTree(Tree):
 
     def prev_sibling_position(self, pos):
         candidate = self._prev_sibling_position(self._tree, pos)
-        return self._sanitize_position(candidate, self._tree, last=True)
+        return self._sanitize_position(candidate, last=True)
 
     def last_decendant(self, pos):
         def lastd(pos):

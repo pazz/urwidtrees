@@ -20,13 +20,14 @@ SEEDS = range(50)
 
 
 def random_forest(rng, labels, depth=4, width=3, nesting=0,
-                  inner_forests=False, root_subtree=False):
+                  inner_forests=False, root_subtree=False, empty=False):
     """
     a random list of `(widget, children)` nodes for `SimpleTree`.
     With `nesting` > 0, some leaves hold a random tree instead of a widget,
     to be expanded by `NestedTree`; subtrees contain further subtrees up to
     `nesting` levels, have several roots only with `inner_forests`, and
-    the very first root is a subtree only with `root_subtree`.
+    the very first root is a subtree only with `root_subtree`. With
+    `empty`, some subtrees are empty.
     """
     forest = []
     for i in range(rng.randint(1, width)):
@@ -34,13 +35,16 @@ def random_forest(rng, labels, depth=4, width=3, nesting=0,
         if nesting and depth > 0 and allowed and rng.random() < 0.3:
             inner = random_forest(rng, labels, depth - 1,
                                   width if inner_forests else 1,
-                                  nesting - 1, inner_forests, root_subtree)
+                                  nesting - 1, inner_forests, root_subtree,
+                                  empty)
+            if empty and rng.random() < 0.3:
+                inner = []
             forest.append((SimpleTree(inner), None))
             continue
         children = rng.choice([None, []])  # both mean no children
         if depth > 0 and rng.random() < 0.6:
             children = random_forest(rng, labels, depth - 1, width, nesting,
-                                     inner_forests, True)
+                                     inner_forests, True, empty)
         forest.append((Node(str(next(labels))), children))
     return forest
 
@@ -215,11 +219,15 @@ class TestNestedTree(InvariantsMixin, unittest.TestCase):
                    root_subtree=True)
         self.check(self.check_navigation, nesting=3, inner_forests=True,
                    root_subtree=True)
+        self.check(self.check_navigation, nesting=3, inner_forests=True,
+                   root_subtree=True, empty=True)
 
     def test_depth(self):
         self.check(self.check_depth, nesting=1, root_subtree=True)
         self.check(self.check_depth, nesting=3, inner_forests=True,
                    root_subtree=True)
+        self.check(self.check_depth, nesting=3, inner_forests=True,
+                   root_subtree=True, empty=True)
 
     # Known bugs, each on the smallest tree that shows it. Once fixed, the
     # random sweep above should be extended to the shape in question.
@@ -253,9 +261,16 @@ class TestNestedTree(InvariantsMixin, unittest.TestCase):
         self.assertIsNone(tree.root)
         self.assertEqual(list(tree.positions()), [])
 
-    @unittest.expectedFailure  # root points into the empty subtree
-    def test_empty_subtree_at_root(self):
-        self.check_fixed([(SimpleTree([]), None), (Node('b'), None)])
+    def test_empty_subtrees(self):
+        empty = SimpleTree([])
+        self.check_fixed([(empty, None), (Node('b'), None)])
+        self.check_fixed([(Node('R'), [(empty, None)])])
+        self.check_fixed([(Node('R'), [(empty, None), (Node('b'), None),
+                                       (empty, None)])])
+        middle = SimpleTree([(Node('m'), None), (empty, None)])
+        self.check_fixed([(Node('R'), [(middle, None), (Node('c'), None)])])
+        self.check_fixed([(Node('R'), [(empty, None)] * 5000
+                           + [(Node('b'), None)])])
 
 
 class TestTreeBox(unittest.TestCase):
