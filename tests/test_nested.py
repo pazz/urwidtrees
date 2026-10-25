@@ -98,3 +98,24 @@ class TestNestedCollapse(unittest.TestCase):
         tree.collapse(b)
         tree.expand(b)
         self.assertFalse(tree.is_collapsed(b))
+
+    def test_collapse_all_reaches_hidden_subtrees(self):
+        inner = CollapsibleTree(SimpleTree([(Node('x'), [(Node('y'), None)])]))
+        outer = CollapsibleTree(
+            SimpleTree([(Node('R'), [(Node('a'), [(inner, None)])])]),
+            is_collapsed=lambda pos: pos == (0, 0))
+        tree = NestedTree(outer)
+        tree.collapse_all()
+        self.assertTrue(inner.is_collapsed((0,)))
+        self.assertEqual(list(tree.positions()), [((0,),)])
+        tree.expand_all()
+        self.assertEqual(len(list(tree.positions())), 4)
+
+    def test_collapse_all_wide(self):
+        outer = CollapsibleTree(SimpleTree([(Node('R'), [
+            (Node(str(i)), [(Node('c'), None)]) for i in range(1500)])]))
+        tree = NestedTree(outer)
+        tree.collapse_all()
+        self.assertEqual(list(tree.positions()), [((0,),)])
+        tree.expand_all()
+        self.assertEqual(len(list(tree.positions())), 3001)

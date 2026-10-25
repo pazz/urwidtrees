@@ -132,21 +132,7 @@ class NestedTree(Tree):
             subtree.collapse(pos[-1])
 
     def collapse_all(self):
-        self._collapse_all(self._tree, self.root)
-
-    def _collapse_all(self, tree, pos=None):
-        if pos is not None:
-            if isinstance(tree, (CollapseMixin, NestedTree)):
-                tree.expand_all()
-
-            if len(pos) > 1:
-                self._collapse_all(tree[pos[0]], pos[1:])
-            nextpos = tree.next_position(pos[0])
-            if nextpos is not None:
-                nentry = tree[nextpos]
-                if isinstance(nentry, Tree):
-                    self._collapse_all(nentry, (nentry.root,))
-                self._collapse_all(tree, (nextpos,))
+        for tree in self._expand_all():
             if isinstance(tree, (CollapseMixin, NestedTree)):
                 tree.collapse_all()
 
@@ -156,22 +142,22 @@ class NestedTree(Tree):
             subtree.expand(pos[-1])
 
     def expand_all(self):
-        self._expand_all(self._tree, self.root)
+        self._expand_all()
 
-    def _expand_all(self, tree, pos=None):
-        if pos is not None:
+    def _expand_all(self):
+        """
+        expand the outer tree and every tree nested in it, and return them;
+        expanding first finds the subtrees below collapsed nodes
+        """
+        trees, todo = [], [self._tree]
+        while todo:
+            tree = todo.pop()
             if isinstance(tree, (CollapseMixin, NestedTree)):
                 tree.expand_all()
-            if len(pos) > 1:
-                self._expand_all(tree[pos[0]], pos[1:])
-            nextpos = tree.next_position(pos[0])
-            if nextpos is not None:
-                nentry = tree[nextpos]
-                if isinstance(nentry, Tree):
-                    self._expand_all(nentry, (nentry.root,))
-                self._expand_all(tree, (nextpos,))
-            if isinstance(tree, (CollapseMixin, NestedTree)):
-                tree.expand_all()
+            trees.append(tree)
+            todo.extend(tree[p] for p in tree.positions()
+                        if isinstance(tree[p], Tree))
+        return trees
 
     def is_leaf(self, pos, outmost_only=False):
         return self.first_child_position(pos, outmost_only) is None
