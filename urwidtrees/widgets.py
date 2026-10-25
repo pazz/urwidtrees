@@ -1,18 +1,14 @@
 # Copyright (C) 2013  Patrick Totzke <patricktotzke@gmail.com>
 # This file is released under the GNU GPL, version 3 or a later revision.
 
+from functools import lru_cache
+
 import urwid
 from urwid import WidgetWrap, ListBox
 from urwid import signals
 
 from .decoration import DecoratedTree, CollapseMixin
 from .nested import NestedTree
-try:
-    # lru_cache is part of the stdlib from v3.2 onwards
-    from functools import lru_cache
-except ImportError:
-    # on older versions we use a backport
-    from .lru_cache import lru_cache
 
 
 # The following functions are used to check dynamically if a tree offers sub-APIs
