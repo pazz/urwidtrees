@@ -66,6 +66,16 @@ class TestSimpleTree(unittest.TestCase):
         self.assertEqual(list(t.positions()), [(0,), (1,), (1, 0)])
         self.assertEqual(t.first_ancestor((1, 0)), (1,))
 
+    def test_getitem_override(self):
+        # navigation reads the tree's data, not a subclass's __getitem__
+        class Wrapped(SimpleTree):
+            def __getitem__(self, pos):
+                return ('wrapped', super().__getitem__(pos))
+
+        t = Wrapped(small_tree()._treelist)
+        dfo = [(0,), (0, 0), (0, 0, 0), (0, 0, 1), (0, 1)]
+        self.assertEqual(list(t.positions()), dfo)
+
 
 class FlatList(Tree):
     """a Tree that relies on the defaults for parents and children"""
