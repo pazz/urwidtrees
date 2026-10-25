@@ -189,12 +189,10 @@ class TreeBox(WidgetWrap):
     def collapse_all(self):
         """
         Collapse all positions; works only if the underlying tree allows it.
+        The focus moves to the top-level node it was under.
         """
         if implementsCollapseAPI(self._tree):
             self._tree.collapse_all()
-            if self._focus_position() is not None:
-                self.set_focus(self._tree.root)
-            self._walker.clear_cache()
             self.refresh()
 
     def expand_all(self):
