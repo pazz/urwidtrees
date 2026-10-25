@@ -129,9 +129,6 @@ class TestSimpleTree(InvariantsMixin, unittest.TestCase):
             with self.subTest(forest=forest):
                 self.check_navigation(SimpleTree(forest), list(flatten(forest)))
 
-    # RecursionError, one frame per level in SimpleTree._get_substructure,
-    # Tree.depth and ArrowTree._construct_spacer
-    @unittest.expectedFailure
     def test_deep_chain(self):
         forest = None
         for i in range(1100):
@@ -139,6 +136,7 @@ class TestSimpleTree(InvariantsMixin, unittest.TestCase):
         tree = ArrowTree(SimpleTree(forest))
         last = tree.last_decendant(tree.root)
         self.assertEqual(tree.depth(last), 1099)
+        self.assertEqual(len(list(tree.positions())), 1100)
         render(tree.get_decorated(last), 1200)
 
     def test_wide_node(self):
