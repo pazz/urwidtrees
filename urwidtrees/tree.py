@@ -91,27 +91,23 @@ class Tree(object):
 
     def next_position(self, pos):
         """returns the next position in depth-first order"""
-        candidate = None
-        if pos is not None:
-            candidate = self.first_child_position(pos)
-            if candidate is None:
-                candidate = self.next_sibling_position(pos)
-                if candidate is None:
-                    candidate = self._next_of_kin(pos)
+        if pos is None:
+            return None
+        candidate = self.first_child_position(pos)
+        if candidate is None:
+            candidate = self.next_sibling_position(pos)
+        if candidate is None:
+            candidate = self._next_of_kin(pos)
         return candidate
 
     def prev_position(self, pos):
         """returns the previous position in depth-first order"""
-        candidate = None
-        if pos is not None:
-            prevsib = self.prev_sibling_position(pos)  # is None if first
-            if prevsib is not None:
-                candidate = self.last_decendant(prevsib)
-            else:
-                parent = self.parent_position(pos)
-                if parent is not None:
-                    candidate = parent
-        return candidate
+        if pos is None:
+            return None
+        prevsib = self.prev_sibling_position(pos)  # is None if first
+        if prevsib is not None:
+            return self.last_decendant(prevsib)
+        return self.parent_position(pos)
 
     def positions(self, reverse=False):
         """returns a generator that walks the positions of this tree in DFO"""
@@ -183,8 +179,9 @@ class SimpleTree(Tree):
         self._root = pos
 
     # a few local helper methods
-    def _get_substructure(self, treelist, pos):
-        """look up node-tuple for `pos` in `treelist`"""
+    def _get_substructure(self, pos):
+        """look up node-tuple for `pos`; default to None if nonexistent"""
+        treelist = self._treelist
         for index in pos[:-1]:
             treelist = treelist[index][1]
         try:
@@ -192,28 +189,18 @@ class SimpleTree(Tree):
         except (IndexError, TypeError):
             return None
 
-    def _get_node(self, treelist, pos):
-        """
-        look up widget at `pos` of `treelist`; default to None if
-        nonexistent.
-        """
-        node = None
-        if pos is not None:
-            subtree = self._get_substructure(treelist, pos)
-            if subtree is not None:
-                node = subtree[0]
-        return node
+    def _get_node(self, pos):
+        """look up widget at `pos`; default to None if nonexistent"""
+        subtree = None if pos is None else self._get_substructure(pos)
+        return None if subtree is None else subtree[0]
 
     def _confirm_pos(self, pos):
-        """look up widget for pos and default to None"""
-        candidate = None
-        if self._get_node(self._treelist, pos) is not None:
-            candidate = pos
-        return candidate
+        """pos if it holds a widget, else None"""
+        return pos if self._get_node(pos) is not None else None
 
     # Tree API
     def __getitem__(self, pos):
-        return self._get_node(self._treelist, pos)
+        return self._get_node(pos)
 
     @staticmethod
     def parent_position(pos):
@@ -227,7 +214,7 @@ class SimpleTree(Tree):
 
     def last_child_position(self, pos):
         candidate = None
-        subtree = self._get_substructure(self._treelist, pos)
+        subtree = self._get_substructure(pos)
         if subtree is not None:
             children = subtree[1]
             if children:
