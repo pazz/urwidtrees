@@ -144,6 +144,16 @@ class TestTreeBox(unittest.TestCase):
 
 class TestTreeListWalker(unittest.TestCase):
 
+    def test_follows_root_of_tree_filled_later(self):
+        nodes = []
+        box = TreeBox(SimpleTree(nodes))
+        self.assertEqual(box.get_focus(), (None, None))
+        nodes.append((Node('a'), None))
+        box.refresh()
+        self.assertEqual(box.get_focus()[1], (0,))
+        self.assertEqual(box._walker.root, (0,))
+        self.assertEqual(render(box, 10, 2)[0].rstrip(), 'a')
+
     def test_cache_per_walker(self):
         tree = ArrowTree(small_tree())
         first, second = TreeListWalker(tree), TreeListWalker(tree)

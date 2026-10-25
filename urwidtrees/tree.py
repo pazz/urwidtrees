@@ -166,7 +166,21 @@ class SimpleTree(Tree):
     """
     def __init__(self, treelist):
         self._treelist = treelist
-        self.root = (0,) if treelist else None
+        self._root = None
+
+    @property
+    def root(self):
+        """
+        `(0,)`, or None while the tree is empty; a position assigned to
+        `root` takes precedence (assigning None restores the default)
+        """
+        if self._root is not None:
+            return self._root
+        return (0,) if self._treelist else None
+
+    @root.setter
+    def root(self, pos):
+        self._root = pos
 
     # a few local helper methods
     def _get_substructure(self, treelist, pos):
