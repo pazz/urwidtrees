@@ -17,7 +17,7 @@ instead of :meth:`__getitem__` when working on `DecoratedTree`'s.
 
 The reason for this slightly odd design choice is that first it makes it easy to read
 the original content of a decorated tree: You simply use `dtree[pos]`.
-Secondly, this makes it possible to recursively add line decoration when nesting (decorated) Trees.
+Secondly, this makes it possible to recursively add line decoration when nesting (decorated) Trees with :class:`NestedTree`.
 
 The module `decoration` offers a few readily usable :class:`DecoratedTree` subclasses that implement
 decoration by indentation, arrow shapes and subtree collapsing:
@@ -27,6 +27,11 @@ decoration by indentation, arrow shapes and subtree collapsing:
 :class:`ArrowTree` and
 :class:`CollapsibleArrowTree`.
 Each can be further customized by constructor parameters.
+
+These classes do not stack: each wraps a plain, undecorated tree. An outer decorator
+hides the decoration of an inner one, and hides its collapse methods from a
+:class:`TreeBox`. For collapsing together with indentation or arrows, use
+:class:`CollapsibleIndentedTree` or :class:`CollapsibleArrowTree`.
 
 
 API
