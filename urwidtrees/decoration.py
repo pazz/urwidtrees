@@ -11,6 +11,23 @@ class NoSpaceError(Exception):
     """too little space for requested decoration"""
 
 
+def _is_empty_tree(entry):
+    """
+    whether `entry` is a tree holding nothing but empty trees, which takes
+    no line in a NestedTree (compare NestedTree._sanitize_position)
+    """
+    todo = [entry]
+    while todo:
+        entry = todo.pop()
+        if not isinstance(entry, Tree):
+            return False
+        pos = entry.root
+        while pos is not None:
+            todo.append(entry[pos])
+            pos = entry.next_sibling_position(pos)
+    return True
+
+
 class DecoratedTree(Tree):
     """
     :class:`Tree` that wraps around another :class:`Tree` and allows to read
@@ -331,6 +348,19 @@ class ArrowTree(IndentedTree):
         self._arrow_tip_att = arrow_tip_att
         self._arrow_att = arrow_att
 
+    def _has_next_sibling(self, pos):
+        """
+        whether a line follows `pos` at its level; an empty tree nested in
+        place of a node takes no line in a :class:`NestedTree`
+        """
+        # ponytail: walks the run of empty subtrees on every call; a long run
+        # costs as much per rendered line below it, which the walker's line
+        # cache absorbs
+        pos = self._tree.next_sibling_position(pos)
+        while pos is not None and _is_empty_tree(self._tree[pos]):
+            pos = self._tree.next_sibling_position(pos)
+        return pos is not None
+
     def _construct_spacer(self, pos, acc):
         """
         build a spacer that occupies the horizontally indented space between
@@ -341,8 +371,7 @@ class ArrowTree(IndentedTree):
         while parent is not None:
             grandparent = self._tree.parent_position(parent)
             if self._indent > 0 and grandparent is not None:
-                parent_sib = self._tree.next_sibling_position(parent)
-                draw_vbar = parent_sib is not None
+                draw_vbar = self._has_next_sibling(parent)
                 space_width = self._indent - 1 * (draw_vbar) - self._childbar_offset
                 if space_width > 0:
                     void = urwid.AttrMap(urwid.SolidFill(' '), self._arrow_att)
@@ -364,7 +393,7 @@ class ArrowTree(IndentedTree):
         # connector symbol, either L or |- shaped.
         connectorw = None
         connector = None
-        if self._tree.next_sibling_position(pos) is not None:  # |- shaped
+        if self._has_next_sibling(pos):  # |- shaped
             if self._arrow_connector_tchar is not None:
                 connectorw = urwid.Text(self._arrow_connector_tchar)
         else:  # L shaped
@@ -402,7 +431,7 @@ class ArrowTree(IndentedTree):
                 if width > available_width:
                     raise NoSpaceError()
                 available_width -= width
-                if self._tree.next_sibling_position(pos) is not None:
+                if self._has_next_sibling(pos):
                     barw = urwid.SolidFill(self._arrow_vbar_char)
                     below = urwid.AttrMap(barw, self._arrow_vbar_att or
                                           self._arrow_att)
@@ -453,8 +482,7 @@ class ArrowTree(IndentedTree):
                 else:
                     parent = self._tree.parent_position(pos)
                     if self._indent > 0 and parent is not None:
-                        parent_sib = self._tree.next_sibling_position(pos)
-                        draw_vbar = parent_sib is not None
+                        draw_vbar = self._has_next_sibling(pos)
                         void = urwid.AttrMap(urwid.SolidFill(' '),
                                              self._arrow_att)
                         if draw_vbar:
