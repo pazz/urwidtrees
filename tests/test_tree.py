@@ -18,6 +18,16 @@ class TestSimpleTree(unittest.TestCase):
         self.assertEqual(self.tree.root, (0,))
         self.assertIsNone(SimpleTree([]).root)
 
+    def test_root_follows_list(self):
+        nodes = []
+        tree = SimpleTree(nodes)
+        self.assertIsNone(tree.root)
+        nodes.append((Node('a'), None))
+        self.assertEqual(tree.root, (0,))
+        self.assertEqual(list(tree.positions()), [(0,)])
+        nodes.clear()
+        self.assertIsNone(tree.root)
+
     def test_local_moves(self):
         t = self.tree
         self.assertIsNone(t.parent_position((0,)))

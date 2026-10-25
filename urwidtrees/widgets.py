@@ -39,9 +39,16 @@ class TreeListWalker(urwid.ListWalker):
             It defaults to the value of `Tree.root`.
         """
         self._tree = tree
-        self._focus = tree.root if focus is None else focus
-        self.root = tree.root
+        self._focus = focus
         self._lines = lru_cache()(self._line)
+
+    @property
+    def root(self):
+        return self._tree.root
+
+    @root.setter
+    def root(self, pos):
+        self._tree.root = pos
 
     def __getitem__(self, pos):
         """gets (possibly decorated) line widget at given position"""
@@ -71,7 +78,8 @@ class TreeListWalker(urwid.ListWalker):
 
     # List Walker API.
     def get_focus(self):
-        return self._get(self._focus)
+        # without a focus, follow the root, which may appear later
+        return self._get(self.root if self._focus is None else self._focus)
 
     def set_focus(self, pos):
         self._focus = pos
