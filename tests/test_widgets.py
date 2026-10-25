@@ -76,6 +76,15 @@ class TestTreeBox(unittest.TestCase):
         self.assertEqual(self.press(box, 'down'), (0,))
         self.assertEqual(self.press(box, 'E', 'down'), (0, 0))
 
+    def test_collapse_all_keeps_focus_on_own_root(self):
+        forest = SimpleTree([
+            (Node('r1'), [(Node('a'), None)]),
+            (Node('r2'), [(Node('b'), [(Node('c'), None)])]),
+        ])
+        box = TreeBox(CollapsibleTree(forest), focus=(1, 0, 0))
+        self.assertEqual(self.press(box, 'C'), (1,))
+        self.assertEqual(self.press(box, 'up'), (0,))
+
     def test_collapse_ignored_without_collapse_api(self):
         box = TreeBox(small_tree())
         self.assertEqual(self.press(box, 'right', '-', 'down'), (0, 0, 0))
