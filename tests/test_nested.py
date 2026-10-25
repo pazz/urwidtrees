@@ -57,6 +57,29 @@ class TestNestedTree(unittest.TestCase):
                          ['R', '  c', '  x', '    y'])
 
 
+    def test_arrows_skip_empty_subtrees(self):
+        """an empty subtree after the last node draws no connector or bar"""
+        empty = SimpleTree([])
+        tree = NestedTree(ArrowTree(SimpleTree([
+            (Node('R'), [(Node('a'), [(Node('a1'), None)]), (empty, None),
+                         (SimpleTree([(empty, None)]), None)]),
+        ])))
+        self.assertEqual(render_tree(tree), ['R', '└─➤a', '   └─➤a1'])
+        a1 = ((0, 0, 0),)
+        self.assertEqual(render(tree.decorate(a1, Node('m'), False), 8)[0],
+                         '      m ')
+
+    def test_arrows_skip_deeply_nested_empty_subtree(self):
+        # decoration only: NestedTree navigation still recurses once per
+        # nesting level
+        empty = SimpleTree([])
+        for _ in range(1500):
+            empty = SimpleTree([(empty, None)])
+        tree = NestedTree(ArrowTree(SimpleTree([
+            (Node('R'), [(Node('a'), None), (empty, None)])])))
+        self.assertEqual(render(tree.get_decorated(((0, 0),)), 8)[0],
+                         '└─➤a    ')
+
     def test_decoration_two_levels(self):
         inner = ArrowTree(SimpleTree([(Node('x'), [(Node('y'), None)])]))
         middle = ArrowTree(SimpleTree([(inner, None)]))
