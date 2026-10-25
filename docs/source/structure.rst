@@ -11,7 +11,7 @@ Structure
     * :meth:`~Tree.next_sibling_position`
     * :meth:`~Tree.prev_sibling_position`
 
-Each of which takes and returns a `position` object of arbitrary type (fixed for the Tree)
+Each of which takes and returns a hashable `position` object of arbitrary type (fixed for the Tree)
 as done in urwids ListWalker API. Apart from this, a Tree is assumed to define a dedicated
 position `tree.root` that is used as fallback initially focussed element,
 and define the :meth:`__getitem__` method to return its content (usually a Widget) for a given position.
