@@ -140,12 +140,15 @@ class TreeBox(WidgetWrap):
         # move the focus out of subtrees collapsed in the meantime
         focuspos = self._focus_position()
         if implementsCollapseAPI(self._tree) and focuspos is not None:
-            visible = focuspos
+            # hidden: the child on the path is not among the shown children;
+            # a collapsed node nested in a NestedTree still shows outer ones
+            visible = child = focuspos
             pos = self._tree.parent_position(focuspos)
             while pos is not None:
-                if self._tree.is_collapsed(pos):
+                if self._tree.first_child_position(pos) != \
+                        self._tree.first_sibling_position(child):
                     visible = pos
-                pos = self._tree.parent_position(pos)
+                child, pos = pos, self._tree.parent_position(pos)
             if visible != focuspos:
                 self.set_focus(visible)
         self._walker.clear_cache()
