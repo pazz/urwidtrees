@@ -5,7 +5,7 @@ import weakref
 import urwid
 
 from urwidtrees import (ArrowTree, CollapsibleArrowTree, CollapsibleTree,
-                        SimpleTree, TreeBox)
+                        NestedTree, SimpleTree, TreeBox)
 from urwidtrees.widgets import TreeListWalker
 
 from .test_tree import FlatList
@@ -113,6 +113,25 @@ class TestTreeBox(unittest.TestCase):
         self.assertEqual(box.get_focus()[1], (0,))
         self.assertEqual(render(box, 10, 6)[0].rstrip(), 'r')
         self.assertEqual(self.press(box, 'down'), (0,))
+
+    def test_refresh_after_collapsing_nested_node(self):
+        # as in alot: collapsing a message hides its body, not its replies
+        def message(name):
+            return CollapsibleTree(SimpleTree(
+                [(Node(name), [(Node(name + ' body'), None)])]))
+        for focus, expected in [(((0, 0), (0,)), ((0, 0), (0,))),
+                                (((0,), (0, 0)), ((0,), (0,)))]:
+            with self.subTest(focus=focus):
+                parent = message('p')
+                tree = NestedTree(
+                    SimpleTree([(parent, [(message('r'), None)])]),
+                    interpret_covered=True)
+                box = TreeBox(tree, focus=focus)
+                parent.collapse(parent.root)
+                box.refresh()
+                self.assertEqual(box.get_focus()[1], expected)
+                self.assertEqual([line.rstrip() for line in
+                                  render(box, 10, 3)], ['p', 'r', 'r body'])
 
     def test_keys_reach_the_focused_row_once(self):
         received = []
