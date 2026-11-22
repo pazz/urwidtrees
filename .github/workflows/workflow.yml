@@ -1,0 +1,55 @@
+name: Publish to PyPI
+
+# Uploads with PyPI Trusted Publishing, so no API token is stored here.
+# PyPI accepts only this file name (workflow.yml) from pazz/urwidtrees.
+# Release by publishing a GitHub release for a tag whose version matches
+# urwidtrees/version.py. Running it by hand from the Actions tab is for
+# tags made before this file existed, such as 1.1.0: a release event runs
+# the workflow file of the tagged commit, which those tags lack.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+
+  build:
+    # manual runs only from main, never from a feature branch
+    if: github.event_name == 'release' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Check the release tag matches urwidtrees/version.py
+        if: github.event_name == 'release'
+        env:
+          TAG: ${{ github.ref_name }}
+        run: grep -qx "__version__ = '$TAG'" urwidtrees/version.py
+
+      - name: Build sdist and wheel
+        run: pipx run build
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
